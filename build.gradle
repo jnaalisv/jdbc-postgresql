@@ -6,6 +6,8 @@ repositories {
     jcenter()
 }
 
-dependencies {
+ext["postgreSqlVersion"] = "42.2.5"
 
+dependencies {
+    compile ("org.postgresql:postgresql:$postgreSqlVersion")
 }
