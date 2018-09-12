@@ -43,6 +43,14 @@ from times;
 
 select timetz 'allballs' at time zone 'Europe/Helsinki';
 
-select *
-from pg_timezone_names
+select * from pg_timezone_names;
+select * from pg_timezone_abbrevs;
+-- "A time zone abbreviation, for example PST. Such a specification merely defines a particular offset from UTC, in contrast to full time zone names which can imply a set of daylight savings transition-date rules as well"
 
+-- daylight savings rule applied with full time zone name, but not with time zone abbreviation
+select
+  timestamptz '2018-10-28 00:00' at time zone 'UTC' as UTC,
+  timestamptz '2018-10-28 00:00' at time zone 'Europe/Helsinki' as utc_midnight_at_helsinki,
+  timestamptz '2018-10-28 01:00' at time zone 'Europe/Helsinki' as utc_1pm_at_helsinki,
+  timestamptz '2018-10-28 00:00' at time zone 'EEST' as utc_midnight_at_EEST,
+  timestamptz '2018-10-28 01:00' at time zone 'EEST' as utc_1pm_at_EEST
