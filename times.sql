@@ -53,4 +53,20 @@ select
   timestamptz '2018-10-28 00:00' at time zone 'Europe/Helsinki' as utc_midnight_at_helsinki,
   timestamptz '2018-10-28 01:00' at time zone 'Europe/Helsinki' as utc_1pm_at_helsinki,
   timestamptz '2018-10-28 00:00' at time zone 'EEST' as utc_midnight_at_EEST,
-  timestamptz '2018-10-28 01:00' at time zone 'EEST' as utc_1pm_at_EEST
+  timestamptz '2018-10-28 01:00' at time zone 'EEST' as utc_1pm_at_EEST;
+
+SET TIME ZONE 'UTC';
+SET TIME ZONE 'Europe/Helsinki';
+
+select * from times
+
+-- functions
+select
+    CURRENT_DATE,
+    CURRENT_TIMESTAMP(2), -- with tz
+    LOCALTIME(2),
+    LOCALTIMESTAMP(2)
+-- Since these functions return the start time of the current transaction,
+-- their values do not change during the transaction.This is considered a feature: the
+-- intent is to allow a single transaction to have a consistent notion of the “current” time,
+-- so that multiple modifications within the same transaction bear the same time stamp
