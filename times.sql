@@ -70,3 +70,33 @@ select
 -- their values do not change during the transaction.This is considered a feature: the
 -- intent is to allow a single transaction to have a consistent notion of the “current” time,
 -- so that multiple modifications within the same transaction bear the same time stamp
+
+
+create table event (
+  description varchar,
+  timestamp timestamptz
+);
+
+
+-- different ways of inserting timestamptz
+insert
+into event
+values
+    ('Customer meeting, Stockholm', '2018-07-08 18:25:00 Europe/Stockholm'),
+    ('Shareholder dinner, Stockholm', timestamptz '2018-08-22 19:30:00 Europe/Stockholm'),
+    ('Recruiting event, Helsinki', '2018-08-30 16:00:00 Europe/Helsinki')
+;
+
+select
+  description
+  , timestamp at time zone 'Europe/Helsinki' as HelsinkiTime
+  , timestamp at time zone 'Europe/Stockholm' as StockholmTime
+from event;
+
+
+select
+  -- converted to utc
+  timestamptz '2018-05-08 18:51:01 Europe/Stockholm' as tstz,
+
+  -- if no TZ specified, uses system default TZ, so should always specify TZ
+  timestamptz '2018-08-22 18:51:01' as tstz0;
