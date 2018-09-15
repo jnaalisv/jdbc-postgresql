@@ -21,7 +21,7 @@ import static org.example.sql.SqlDb.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SqlDbTest {
+class DateTimeTests {
     private static final SqlDb sqlDb = new SqlDb("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
 
     private static final ZoneId UTC = ZoneId.of("UTC");
