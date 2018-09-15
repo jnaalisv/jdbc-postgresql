@@ -12,8 +12,8 @@ import java.util.Optional;
 import static org.example.sql.SqlHelper.getTimestamp;
 import static org.example.sql.SqlHelper.selectList;
 import static org.example.sql.SqlHelper.selectOne;
-import static org.example.sql.SqlHelper.setString;
-import static org.example.sql.SqlHelper.setTimestamp;
+import static org.example.sql.SqlHelper.stringParam;
+import static org.example.sql.SqlHelper.timestampParam;
 import static org.example.sql.SqlHelper.updateOrInsert;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +40,8 @@ class SqlHelperTest {
         final Timestamp tsInStockholmTimeZone = Timestamp.from(zonedDateTime.toInstant());
 
         int count = updateOrInsert("insert into event values(?,?)",
-                setString(1, "Conference"),
-                setTimestamp(2, tsInStockholmTimeZone)
+                stringParam(1, "Conference"),
+                timestampParam(2, tsInStockholmTimeZone)
         );
         assertEquals(1, count);
 

@@ -38,7 +38,7 @@ public class SqlHelper {
         });
     }
 
-    public static Consumer<PreparedStatement> setString(int index, String string) {
+    public static Consumer<PreparedStatement> stringParam(int index, String string) {
         return preparedStatement -> {
             try {
                 preparedStatement.setString(index, string);
@@ -48,7 +48,7 @@ public class SqlHelper {
         };
     }
 
-    public static Consumer<PreparedStatement> setTimestamp(int index, Timestamp timestamp) {
+    public static Consumer<PreparedStatement> timestampParam(int index, Timestamp timestamp) {
         return preparedStatement -> {
             try {
                 preparedStatement.setTimestamp(index, timestamp);
