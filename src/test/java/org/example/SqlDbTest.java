@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.sql.SqlDb;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
@@ -12,17 +13,16 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.sql.SqlHelper.getString;
-import static org.example.sql.SqlHelper.getTimestamp;
-import static org.example.sql.SqlHelper.selectList;
-import static org.example.sql.SqlHelper.selectOne;
-import static org.example.sql.SqlHelper.stringParam;
-import static org.example.sql.SqlHelper.timestampParam;
-import static org.example.sql.SqlHelper.updateOrInsert;
+import static org.example.sql.SqlDb.getString;
+import static org.example.sql.SqlDb.getTimestamp;
+import static org.example.sql.SqlDb.stringParam;
+import static org.example.sql.SqlDb.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SqlHelperTest {
+class SqlDbTest {
+
+    private static final SqlDb sqlDb = new SqlDb("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
 
     public static class TimeDTO {
         Timestamp timestamp;
@@ -34,7 +34,7 @@ class SqlHelperTest {
 
     @Test
     void shouldReadIntoSimpleDTO() {
-        Optional<TimeDTO> maybeTs = selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
+        Optional<TimeDTO> maybeTs = sqlDb.selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -50,25 +50,25 @@ class SqlHelperTest {
 
     @Test
     void shouldReadIntoEvent() {
-        Optional<Event> maybeTs = selectOne("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        Optional<Event> maybeTs = sqlDb.selectOne("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
     @Test
     void shouldReadOneRowFromTheDb() {
-        Optional<Timestamp> maybeTs = selectOne("select timestamp from event", getTimestamp("timestamp"));
+        Optional<Timestamp> maybeTs = sqlDb.selectOne("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
     @Test
     void shouldReadAListFromTheDb() {
-        List<Timestamp> timestamps = selectList("select timestamp from event", getTimestamp("timestamp"));
+        List<Timestamp> timestamps = sqlDb.selectList("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
     @Test
     void shouldReadAListOfEvents() {
-        List<Event> events = selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        List<Event> events = sqlDb.selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
         assertTrue(events.size() > 0);
     }
 
@@ -86,13 +86,13 @@ class SqlHelperTest {
 
         final Timestamp eventTimestamp = Timestamp.from(zonedDateTime.toInstant());
 
-        int count = updateOrInsert("insert into event values(?,?)",
+        int count = sqlDb.updateOrInsert("insert into event values(?,?)",
                 stringParam(1, "Conference"),
                 timestampParam(2, eventTimestamp)
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = selectOne(
+        Optional<Timestamp> maybeEventTimestamp = sqlDb.selectOne(
                 "select timestamp from event where description = 'Conference'",
                 getTimestamp("timestamp")
         );
