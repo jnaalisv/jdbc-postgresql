@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -89,7 +90,17 @@ public class SqlHelper {
         };
     }
 
-    public static <T> Optional<T> selectOne(final String query, Function<ResultSet, T> rsMapper) {
+    public static Function<ResultSet, String> getString(String columnLabel) {
+        return resultSet -> {
+            try {
+                return resultSet.getString(columnLabel);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public static <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper) {
         return execQuery(query, resultSet -> {
             try {
                 final T returnValue = resultSet.next() ? rsMapper.apply(resultSet) : null;
@@ -97,6 +108,35 @@ public class SqlHelper {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        });
+    }
+
+    public static <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA) {
+        return selectOne(q, rs -> {
+            A a = mapA.apply(rs);
+            return ctor.apply(a);
+        });
+    }
+
+    public static <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+        return selectOne(query, rs -> {
+            A a = mapA.apply(rs);
+            B b = mapB.apply(rs);
+            return ctor.apply(a, b);
+        });
+    }
+
+    @FunctionalInterface
+    public interface Fun3<A, B, C, R> {
+        R apply(A a, B b, C c);
+    }
+
+    public static <T, A, B, C> Optional<T> selectOne(String query, Fun3<A, B, C, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, Function<ResultSet, C> mapC) {
+        return selectOne(query, resultSet -> {
+            A a = mapA.apply(resultSet);
+            B b = mapB.apply(resultSet);
+            C c = mapC.apply(resultSet);
+            return ctor.apply(a, b, c);
         });
     }
 
@@ -111,6 +151,21 @@ public class SqlHelper {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        });
+    }
+
+    public static <T, A> List<T> selectList(String query, Function<A, T> ctor, Function<ResultSet, A> mapA) {
+        return selectList(query, rs -> {
+            A a = mapA.apply(rs);
+            return ctor.apply(a);
+        });
+    }
+
+    public static <T, A, B> List<T> selectList(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+        return selectList(query, rs -> {
+            A a = mapA.apply(rs);
+            B b = mapB.apply(rs);
+            return ctor.apply(a, b);
         });
     }
 }

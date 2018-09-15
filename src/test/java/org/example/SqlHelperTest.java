@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.sql.SqlHelper.getString;
 import static org.example.sql.SqlHelper.getTimestamp;
 import static org.example.sql.SqlHelper.selectList;
 import static org.example.sql.SqlHelper.selectOne;
@@ -23,6 +24,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SqlHelperTest {
 
+    public static class TimeDTO {
+        Timestamp timestamp;
+
+        TimeDTO(Timestamp timestamp) {
+            this.timestamp = timestamp;
+        }
+    }
+
+    @Test
+    void shouldReadIntoSimpleDTO() {
+        Optional<TimeDTO> maybeTs = selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
+        assertTrue(maybeTs.isPresent());
+    }
+
+    public static class Event {
+        String description;
+        Timestamp timestamp;
+
+        Event(String description, Timestamp timestamp) {
+            this.description = description;
+            this.timestamp = timestamp;
+        }
+    }
+
+    @Test
+    void shouldReadIntoEvent() {
+        Optional<Event> maybeTs = selectOne("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        assertTrue(maybeTs.isPresent());
+    }
+
     @Test
     void shouldReadOneRowFromTheDb() {
         Optional<Timestamp> maybeTs = selectOne("select timestamp from event", getTimestamp("timestamp"));
@@ -33,6 +64,12 @@ class SqlHelperTest {
     void shouldReadAListFromTheDb() {
         List<Timestamp> timestamps = selectList("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(timestamps.size() > 0);
+    }
+
+    @Test
+    void shouldReadAListOfEvents() {
+        List<Event> events = selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        assertTrue(events.size() > 0);
     }
 
     private static final ZoneId UTC = ZoneId.of("UTC");
