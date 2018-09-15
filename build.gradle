@@ -11,7 +11,12 @@ repositories {
 }
 
 ext["postgreSqlVersion"] = "42.2.5"
+ext["junitVersion"] = "5.3.1"
 
 dependencies {
     compile ("org.postgresql:postgresql:$postgreSqlVersion")
+
+    testCompile ("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+
+    testRuntime ("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }

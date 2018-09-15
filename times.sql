@@ -93,6 +93,9 @@ select
   , timestamp at time zone 'Europe/Stockholm' as StockholmTime
 from event;
 
+select description, timestamp as utc, timestamp at time zone 'Europe/Helsinki' as HelsinkiTime
+from event
+
 
 select
   -- converted to utc
