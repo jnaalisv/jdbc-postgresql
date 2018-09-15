@@ -40,6 +40,16 @@ public class SqlDb {
         });
     }
 
+    public static Consumer<PreparedStatement> objectParam(int index, Object object) {
+        return preparedStatement -> {
+            try {
+                preparedStatement.setObject(index, object);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public static Consumer<PreparedStatement> stringParam(int index, String string) {
         return preparedStatement -> {
             try {
