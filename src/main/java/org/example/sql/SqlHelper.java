@@ -5,9 +5,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class SqlHelper {
@@ -41,6 +43,16 @@ public class SqlHelper {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public static Function<ResultSet, Timestamp> getTimestamp(String columnLabel) {
+        return resultSet -> {
+            try {
+                return resultSet.getTimestamp(columnLabel);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     public static <T> Optional<T> selectOne(final String query, Function<ResultSet, T> rsMapper) {
