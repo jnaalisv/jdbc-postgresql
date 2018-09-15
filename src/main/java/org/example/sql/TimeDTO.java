@@ -1,11 +1,11 @@
-package org.example;
+package org.example.sql;
 
 import java.sql.Timestamp;
 
-class TimeDTO {
+public class TimeDTO {
     private Timestamp timestamp;
 
-    TimeDTO(Timestamp timestamp) {
+    public TimeDTO(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }

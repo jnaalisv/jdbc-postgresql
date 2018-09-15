@@ -1,6 +1,8 @@
 package org.example;
 
+import org.example.sql.Event;
 import org.example.sql.SqlDb;
+import org.example.sql.TimeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
