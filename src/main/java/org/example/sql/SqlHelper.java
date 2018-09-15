@@ -7,10 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SqlHelper {
 
@@ -35,9 +38,47 @@ public class SqlHelper {
         });
     }
 
+    public static Consumer<PreparedStatement> setString(int index, String string) {
+        return preparedStatement -> {
+            try {
+                preparedStatement.setString(index, string);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public static Consumer<PreparedStatement> setTimestamp(int index, Timestamp timestamp) {
+        return preparedStatement -> {
+            try {
+                preparedStatement.setTimestamp(index, timestamp);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public static int updateOrInsert(String updateOrInsert) {
         return prepareStatement(updateOrInsert, stmt -> {
             try {
+                return stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @SafeVarargs
+    public static int updateOrInsert(String updateOrInsert, Consumer<PreparedStatement>...preparedStatementConsumers) {
+        return prepareStatement(updateOrInsert, stmt -> {
+            try {
+
+                Stream
+                        .of(preparedStatementConsumers)
+                        .forEach(preparedStatementConsumer ->
+                            preparedStatementConsumer.accept(stmt)
+                        );
+
                 return stmt.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
