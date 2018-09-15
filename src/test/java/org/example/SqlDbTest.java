@@ -28,6 +28,8 @@ class SqlDbTest {
     private static final ZoneId EU_STOCKHOLM = ZoneId.of("Europe/Stockholm");
     private static final ZoneId EU_HELSINKI = ZoneId.of("Europe/Helsinki");
 
+    private static final LocalDate date2018_09_15 = LocalDate.of(2018, 9, 15);
+
     @BeforeEach
     void clearDb() {
         sqlDb.updateOrInsert("delete from event;");
@@ -42,10 +44,9 @@ class SqlDbTest {
     }
 
     private void givenOneRowInEventTable() {
-        final LocalDate eventDate = LocalDate.of(2018, 8, 9);
         final LocalTime eventTime = LocalTime.of(14, 22);
         final ZonedDateTime dateTimeInStockholm = LocalDateTime
-                .of(eventDate, eventTime)
+                .of(date2018_09_15, eventTime)
                 .atZone(EU_STOCKHOLM);
         final Timestamp stockholmEventTs = Timestamp.from(dateTimeInStockholm.toInstant());
         final Event stockholmConference = new Event("Stockholm Conference", stockholmEventTs);
@@ -99,10 +100,9 @@ class SqlDbTest {
 
     @Test
     void shouldInsertARow() {
-        final LocalDate eventDate = LocalDate.of(2018, 8, 9);
         final LocalTime eventTimeInStockholm = LocalTime.of(14, 22);
         final ZonedDateTime zonedDateTime = LocalDateTime
-                .of(eventDate, eventTimeInStockholm)
+                .of(date2018_09_15, eventTimeInStockholm)
                 .atZone(EU_STOCKHOLM);
 
         final Timestamp eventTimestamp = Timestamp.from(zonedDateTime.toInstant());
@@ -127,5 +127,34 @@ class SqlDbTest {
         assertEquals(eventTimeInStockholm, eventDateTimeStockholm.toLocalTime());
         assertEquals(eventTimeInStockholm, eventDateTimeHelsinki.toLocalTime().minusHours(1));
         assertEquals(eventTimeInStockholm, eventDateTimeUTC.toLocalTime().plusHours(2));
+    }
+
+    @Test
+    void insertingEventWithoutTimezoneResultsInLocalTz() {
+        final LocalTime eventTime = LocalTime.of(22, 11);
+        final LocalDateTime localDateTime = LocalDateTime.of(date2018_09_15, eventTime);
+        final Timestamp eventTimestamp = Timestamp.valueOf(localDateTime);
+
+        int count = sqlDb.updateOrInsert("insert into event values(?,?)",
+                stringParam(1, "Local Conference"),
+                timestampParam(2, eventTimestamp)
+        );
+        assertEquals(1, count);
+
+        Optional<Timestamp> maybeEventTimestamp = sqlDb.selectOne(
+                "select timestamp from event where description = 'Local Conference'",
+                getTimestamp("timestamp")
+        );
+        assertTrue(maybeEventTimestamp.isPresent());
+        final Instant persistedInstant = maybeEventTimestamp.get().toInstant();
+
+        final ZonedDateTime persistedUtcDateTime = ZonedDateTime.ofInstant(persistedInstant, UTC);
+        final ZonedDateTime helsinkiDateTime = ZonedDateTime.of(localDateTime, EU_HELSINKI);
+
+        assertEquals(helsinkiDateTime.withZoneSameInstant(UTC), persistedUtcDateTime);
+
+        final ZonedDateTime persistedHelsinkiDateTime = ZonedDateTime.ofInstant(persistedInstant, EU_HELSINKI);
+        assertEquals(helsinkiDateTime, persistedHelsinkiDateTime);
+        assertEquals(localDateTime, persistedHelsinkiDateTime.toLocalDateTime());
     }
 }
