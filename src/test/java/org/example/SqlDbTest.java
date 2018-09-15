@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.sql.SqlDb;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
@@ -21,60 +22,80 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SqlDbTest {
-
     private static final SqlDb sqlDb = new SqlDb("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
 
-    public static class TimeDTO {
-        Timestamp timestamp;
+    private static final ZoneId UTC = ZoneId.of("UTC");
+    private static final ZoneId EU_STOCKHOLM = ZoneId.of("Europe/Stockholm");
+    private static final ZoneId EU_HELSINKI = ZoneId.of("Europe/Helsinki");
 
-        TimeDTO(Timestamp timestamp) {
-            this.timestamp = timestamp;
-        }
+    @BeforeEach
+    void clearDb() {
+        sqlDb.updateOrInsert("delete from event;");
     }
 
     @Test
     void shouldReadIntoSimpleDTO() {
+        givenOneRowInEventTable();
+
         Optional<TimeDTO> maybeTs = sqlDb.selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
-    public static class Event {
-        String description;
-        Timestamp timestamp;
+    private void givenOneRowInEventTable() {
+        final LocalDate eventDate = LocalDate.of(2018, 8, 9);
+        final LocalTime eventTime = LocalTime.of(14, 22);
+        final ZonedDateTime dateTimeInStockholm = LocalDateTime
+                .of(eventDate, eventTime)
+                .atZone(EU_STOCKHOLM);
+        final Timestamp stockholmEventTs = Timestamp.from(dateTimeInStockholm.toInstant());
+        final Event stockholmConference = new Event("Stockholm Conference", stockholmEventTs);
 
-        Event(String description, Timestamp timestamp) {
-            this.description = description;
-            this.timestamp = timestamp;
-        }
+        insertEvent(stockholmConference);
+    }
+
+    private void insertEvent(Event event) {
+        sqlDb.updateOrInsert("insert into event values(?,?)",
+                stringParam(1, event.description),
+                timestampParam(2, event.timestamp)
+        );
     }
 
     @Test
     void shouldReadIntoEvent() {
-        Optional<Event> maybeTs = sqlDb.selectOne("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        givenOneRowInEventTable();
+
+        Optional<Event> maybeTs = sqlDb.selectOne(
+                "select description, timestamp from event",
+                Event::new,
+                getString("description"),
+                getTimestamp("timestamp")
+        );
         assertTrue(maybeTs.isPresent());
     }
 
     @Test
     void shouldReadOneRowFromTheDb() {
+        givenOneRowInEventTable();
+
         Optional<Timestamp> maybeTs = sqlDb.selectOne("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
     @Test
     void shouldReadAListFromTheDb() {
+        givenOneRowInEventTable();
+
         List<Timestamp> timestamps = sqlDb.selectList("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
     @Test
     void shouldReadAListOfEvents() {
+        givenOneRowInEventTable();
+
         List<Event> events = sqlDb.selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
         assertTrue(events.size() > 0);
     }
-
-    private static final ZoneId UTC = ZoneId.of("UTC");
-    private static final ZoneId EU_STOCKHOLM = ZoneId.of("Europe/Stockholm");
-    private static final ZoneId EU_HELSINKI = ZoneId.of("Europe/Helsinki");
 
     @Test
     void shouldInsertARow() {
