@@ -1,0 +1,180 @@
+package org.example.rdb;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.sql.SqlUtil;
+
+import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+public class RdbUtil {
+
+    private final ObjectMapper objectMapper;
+    private final SqlUtil sqlUtil;
+
+    public RdbUtil(SqlUtil sqlUtil, ObjectMapper objectMapper) {
+        this.sqlUtil = sqlUtil;
+        this.objectMapper = objectMapper;
+    }
+
+    public <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper) {
+        return sqlUtil.execQuery(query, resultSet -> {
+            try {
+                final T returnValue = resultSet.next() ? rsMapper.apply(resultSet) : null;
+                return Optional.ofNullable(returnValue);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public <T> List<T> selectList(final String query, Function<ResultSet, T> rsMapper) {
+        return sqlUtil.execQuery(query, resultSet -> {
+            final List<T> resultList = new ArrayList<>();
+            try {
+                while (resultSet.next()) {
+                    resultList.add(rsMapper.apply(resultSet));
+                }
+                return resultList;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public <T> List<T> selectList(String query, int columnIndex, Class<T> columnClassT) {
+        return selectList(
+                query,
+                readType(columnIndex, columnClassT)
+        );
+    }
+
+    public static Function<ResultSet, Long> readLong(int columnIndex) {
+        return resultSet -> {
+            try {
+                return resultSet.getLong(columnIndex);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public <T> Function<ResultSet, T> readType(int columnIndex, Class<T> columnClassT) {
+        return resultSet -> {
+            try {
+                final String columnValue = resultSet.getString(columnIndex);
+                return objectMapper.readValue(columnValue, columnClassT);
+            } catch (SQLException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT) {
+        return selectOne(query, resultSet -> {
+            try {
+                final String columnValue = resultSet.getString(columnIndex);
+                return objectMapper.readValue(columnValue, columnClassT);
+            } catch (IOException | SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA) {
+        return selectOne(q, rs -> {
+            A a = mapA.apply(rs);
+            return ctor.apply(a);
+        });
+    }
+
+    public <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+        return selectOne(query, rs -> {
+            A a = mapA.apply(rs);
+            B b = mapB.apply(rs);
+            return ctor.apply(a, b);
+        });
+    }
+
+    @SafeVarargs
+    public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return sqlUtil.prepareStatement(updateOrInsert, stmt -> {
+            try {
+                int paramIndex = 0;
+                for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                    consumer.accept(++paramIndex, stmt);
+                }
+                return stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @FunctionalInterface
+    public interface Fun3<A, B, C, R> {
+        R apply(A a, B b, C c);
+    }
+
+    public <T, A, B, C> Optional<T> selectOne(String query, Fun3<A, B, C, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, Function<ResultSet, C> mapC) {
+        return selectOne(query, resultSet -> {
+            A a = mapA.apply(resultSet);
+            B b = mapB.apply(resultSet);
+            C c = mapC.apply(resultSet);
+            return ctor.apply(a, b, c);
+        });
+    }
+
+    public <T, A> List<T> selectList(String query, Function<A, T> ctor, Function<ResultSet, A> mapA) {
+        return selectList(query, rs -> {
+            A a = mapA.apply(rs);
+            return ctor.apply(a);
+        });
+    }
+
+    public <T, A, B> List<T> selectList(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+        return selectList(query, rs -> {
+            A a = mapA.apply(rs);
+            B b = mapB.apply(rs);
+            return ctor.apply(a, b);
+        });
+    }
+
+    public static BiConsumer<Integer, PreparedStatement> stringParam(String string) {
+        return (index, preparedStatement) -> {
+            try {
+                preparedStatement.setString(index, string);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public static BiConsumer<Integer, PreparedStatement> timestampParam(Timestamp timestamp) {
+        return (index, preparedStatement) -> {
+            try {
+                preparedStatement.setTimestamp(index, timestamp);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    public static BiConsumer<Integer, PreparedStatement> objectParam(Object object) {
+        return (index, preparedStatement) -> {
+            try {
+                preparedStatement.setObject(index, object);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+}

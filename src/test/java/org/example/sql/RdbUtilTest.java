@@ -1,19 +1,20 @@
 package org.example.sql;
 
+import org.example.AppContext;
+import org.example.rdb.RdbUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.example.sql.ResultSetUtil.getString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SqlUtilTest {
-    private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
+class RdbUtilTest {
+    private static final RdbUtil rdbUtil = AppContext.rdbUtil;
 
     @Test
     void selectOneConstant_returnsConstantValue() {
-        Optional<String> maybeResult = sqlUtil.selectOne("select 'value' as value", getString("value"));
+        Optional<String> maybeResult = rdbUtil.selectOne("select 'value' as value", ResultSetUtil.readString("value"));
 
         assertTrue(maybeResult.isPresent());
         assertEquals(maybeResult.get(), "value");

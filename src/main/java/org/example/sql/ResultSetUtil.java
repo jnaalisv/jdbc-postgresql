@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 public class ResultSetUtil {
 
-    public static Function<ResultSet, Timestamp> getTimestamp(String columnLabel) {
+    public static Function<ResultSet, Timestamp> readTimestamp(String columnLabel) {
         return resultSet -> {
             try {
                 return resultSet.getTimestamp(columnLabel);
@@ -17,30 +17,10 @@ public class ResultSetUtil {
         };
     }
 
-    public static Function<ResultSet, Long> getLong(int columnIndex) {
-        return resultSet -> {
-            try {
-                return resultSet.getLong(columnIndex);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static Function<ResultSet, String> getString(String columnLabel) {
+    public static Function<ResultSet, String> readString(String columnLabel) {
         return resultSet -> {
             try {
                 return resultSet.getString(columnLabel);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static Function<ResultSet, String> getString(int columnIndex) {
-        return resultSet -> {
-            try {
-                return resultSet.getString(columnIndex);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

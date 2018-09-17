@@ -1,8 +1,8 @@
 package org.example.jsonb;
 
 import org.example.AppContext;
-import org.example.sql.RdbUtil;
-import org.example.sql.SqlUtil;
+import org.example.rdb.RdbUtil;
+import org.example.sql.ResultSetUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,24 +10,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.sql.ResultSetUtil.getString;
-import static org.example.sql.SqlUtil.objectParam;
+import static org.example.rdb.RdbUtil.objectParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonbTests {
     private static final RdbUtil rdbUtil = AppContext.rdbUtil;
-    private static final SqlUtil sqlUtil = AppContext.sqlUtil;
 
     @BeforeEach
     void clearDb() {
-        sqlUtil.updateOrInsert("delete from books");
+        rdbUtil.updateOrInsert("delete from books");
     }
 
     @Test
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
-        List<String> titles = sqlUtil.selectList("select data ->> 'title' as title from books", getString("title"));
+        List<String> titles = rdbUtil.selectList("select data ->> 'title' as title from books", ResultSetUtil.readString("title"));
 
         assertEquals(Arrays.asList(
                 "Sleeping Beauties",
@@ -89,19 +87,19 @@ class JsonbTests {
         assertTrue(siddhartha.getBookData().published);
     }
 
-    void givenSomeTestData() {
-        sqlUtil.updateOrInsert(
+    private void givenSomeTestData() {
+        rdbUtil.updateOrInsert(
                 "insert into books values" +
                         "(nextval('serial'), ?::jsonb), " +
                         "(nextval('serial'), ?::jsonb), " +
                         "(nextval('serial'), ?::jsonb), " +
                         "(nextval('serial'), ?::jsonb), " +
                         "(nextval('serial'), ?::jsonb)",
-                objectParam(1, "{\"title\": \"Sleeping Beauties\", \"genres\": [\"Fiction\", \"Thriller\", \"Horror\"], \"published\": false}"),
-                objectParam(2, "{\"title\": \"Influence\", \"genres\": [\"Marketing & Sales\", \"Self-Help \", \"Psychology\"], \"published\": true}"),
-                objectParam(3, "{\"title\": \"The Dictator's Handbook\", \"genres\": [\"Law\", \"Politics\"], \"authors\": [\"Bruce Bueno de Mesquita\", \"Alastair Smith\"], \"published\": true}"),
-                objectParam(4, "{\"title\": \"Deep Work\", \"genres\": [\"Productivity\", \"Reference\"], \"published\": true}"),
-                objectParam(5, "{\"title\": \"Siddhartha\", \"genres\": [\"Fiction\", \"Spirituality\"], \"published\": true}")
+                objectParam("{\"title\": \"Sleeping Beauties\", \"genres\": [\"Fiction\", \"Thriller\", \"Horror\"], \"published\": false}"),
+                objectParam("{\"title\": \"Influence\", \"genres\": [\"Marketing & Sales\", \"Self-Help \", \"Psychology\"], \"published\": true}"),
+                objectParam("{\"title\": \"The Dictator's Handbook\", \"genres\": [\"Law\", \"Politics\"], \"authors\": [\"Bruce Bueno de Mesquita\", \"Alastair Smith\"], \"published\": true}"),
+                objectParam("{\"title\": \"Deep Work\", \"genres\": [\"Productivity\", \"Reference\"], \"published\": true}"),
+                objectParam("{\"title\": \"Siddhartha\", \"genres\": [\"Fiction\", \"Spirituality\"], \"published\": true}")
         );
 
     }

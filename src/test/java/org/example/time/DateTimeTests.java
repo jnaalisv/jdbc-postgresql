@@ -1,7 +1,8 @@
 package org.example.time;
 
-import org.example.sql.Env;
-import org.example.sql.SqlUtil;
+import org.example.AppContext;
+import org.example.rdb.RdbUtil;
+import org.example.sql.ResultSetUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,15 +16,13 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.sql.ResultSetUtil.getString;
-import static org.example.sql.ResultSetUtil.getTimestamp;
-import static org.example.sql.SqlUtil.stringParam;
-import static org.example.sql.SqlUtil.timestampParam;
+import static org.example.rdb.RdbUtil.stringParam;
+import static org.example.rdb.RdbUtil.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DateTimeTests {
-    private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
+    private static final RdbUtil rdbUtil = AppContext.rdbUtil;
 
     private static final ZoneId UTC = ZoneId.of("UTC");
     private static final ZoneId EU_STOCKHOLM = ZoneId.of("Europe/Stockholm");
@@ -33,14 +32,14 @@ class DateTimeTests {
 
     @BeforeEach
     void clearDb() {
-        sqlUtil.updateOrInsert("delete from event;");
+        rdbUtil.updateOrInsert("delete from event;");
     }
 
     @Test
     void shouldReadIntoSimpleDTO() {
         givenOneRowInEventTable();
 
-        Optional<TimeDTO> maybeTs = sqlUtil.selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
+        Optional<TimeDTO> maybeTs = rdbUtil.selectOne("select timestamp from event", TimeDTO::new, ResultSetUtil.readTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -56,9 +55,9 @@ class DateTimeTests {
     }
 
     private void insertEvent(Event event) {
-        sqlUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam(1, event.description),
-                timestampParam(2, event.timestamp)
+        rdbUtil.updateOrInsert("insert into event values(?,?)",
+                stringParam(event.description),
+                timestampParam(event.timestamp)
         );
     }
 
@@ -66,11 +65,11 @@ class DateTimeTests {
     void shouldReadIntoEvent() {
         givenOneRowInEventTable();
 
-        Optional<Event> maybeTs = sqlUtil.selectOne(
+        Optional<Event> maybeTs = rdbUtil.selectOne(
                 "select description, timestamp from event",
                 Event::new,
-                getString("description"),
-                getTimestamp("timestamp")
+                ResultSetUtil.readString("description"),
+                ResultSetUtil.readTimestamp("timestamp")
         );
         assertTrue(maybeTs.isPresent());
     }
@@ -79,7 +78,7 @@ class DateTimeTests {
     void shouldReadOneRowFromTheDb() {
         givenOneRowInEventTable();
 
-        Optional<Timestamp> maybeTs = sqlUtil.selectOne("select timestamp from event", getTimestamp("timestamp"));
+        Optional<Timestamp> maybeTs = rdbUtil.selectOne("select timestamp from event", ResultSetUtil.readTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -87,7 +86,7 @@ class DateTimeTests {
     void shouldReadAListFromTheDb() {
         givenOneRowInEventTable();
 
-        List<Timestamp> timestamps = sqlUtil.selectList("select timestamp from event", getTimestamp("timestamp"));
+        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", ResultSetUtil.readTimestamp("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
@@ -95,7 +94,7 @@ class DateTimeTests {
     void shouldReadAListOfEvents() {
         givenOneRowInEventTable();
 
-        List<Event> events = sqlUtil.selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        List<Event> events = rdbUtil.selectList("select description, timestamp from event", Event::new, ResultSetUtil.readString("description"), ResultSetUtil.readTimestamp("timestamp"));
         assertTrue(events.size() > 0);
     }
 
@@ -108,15 +107,15 @@ class DateTimeTests {
 
         final Timestamp eventTimestamp = Timestamp.from(zonedDateTime.toInstant());
 
-        int count = sqlUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam(1, "Conference"),
-                timestampParam(2, eventTimestamp)
+        int count = rdbUtil.updateOrInsert("insert into event values(?,?)",
+                stringParam( "Conference"),
+                timestampParam( eventTimestamp)
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = sqlUtil.selectOne(
+        Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
                 "select timestamp from event where description = 'Conference'",
-                getTimestamp("timestamp")
+                ResultSetUtil.readTimestamp("timestamp")
         );
         assertTrue(maybeEventTimestamp.isPresent());
         final Instant persistedEventInstant = maybeEventTimestamp.get().toInstant();
@@ -136,15 +135,15 @@ class DateTimeTests {
         final LocalDateTime localDateTime = LocalDateTime.of(date2018_09_15, eventTime);
         final Timestamp eventTimestamp = Timestamp.valueOf(localDateTime);
 
-        int count = sqlUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam(1, "Local Conference"),
-                timestampParam(2, eventTimestamp)
+        int count = rdbUtil.updateOrInsert("insert into event values(?,?)",
+                stringParam( "Local Conference"),
+                timestampParam( eventTimestamp)
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = sqlUtil.selectOne(
+        Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
                 "select timestamp from event where description = 'Local Conference'",
-                getTimestamp("timestamp")
+                ResultSetUtil.readTimestamp("timestamp")
         );
         assertTrue(maybeEventTimestamp.isPresent());
         final Instant persistedInstant = maybeEventTimestamp.get().toInstant();
