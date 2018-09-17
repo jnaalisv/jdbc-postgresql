@@ -2,23 +2,9 @@
 
 -- "For timestamp with time zone, the internally stored value is always in UTC"
 
-create table times
-(
-  time time,
-  date date,
-  timestamp timestamp,
-  timestamptz timestamptz
-);
-
-insert
-  into times
-values
-  (
-      '18:51:59',
-      '1999-01-08',
-      '1999-01-08 18:51:01',
-      '1999-01-08 18:51:45 Europe/Stockholm'
-  );
+-- set the current session time zone, UTC is default
+SET TIME ZONE 'UTC';
+SET TIME ZONE 'Europe/Helsinki';
 
 -- note
 select
@@ -32,16 +18,8 @@ select
   timestamptz '1999-01-08 18:51:01' as tstz0;
 
 
--- timestamptz can be converted to different time zone
-select
-  time, date, timestamp,
-  timestamptz as UTC,
-  timestamptz at time zone 'Europe/Helsinki' as HelsinkiTime,
-  timestamptz at time zone 'Europe/Stockholm' as SthlmTime
-from times;
-
-
 select timetz 'allballs' at time zone 'Europe/Helsinki';
+-- 03:00:00 +03:00
 
 select * from pg_timezone_names;
 select * from pg_timezone_abbrevs;
@@ -55,17 +33,12 @@ select
   timestamptz '2018-10-28 00:00' at time zone 'EEST' as utc_midnight_at_EEST,
   timestamptz '2018-10-28 01:00' at time zone 'EEST' as utc_1pm_at_EEST;
 
-SET TIME ZONE 'UTC';
-SET TIME ZONE 'Europe/Helsinki';
-
-select * from times
-
 -- functions
 select
     CURRENT_DATE,
     CURRENT_TIMESTAMP(2), -- with tz
     LOCALTIME(2),
-    LOCALTIMESTAMP(2)
+    LOCALTIMESTAMP(2);
 -- Since these functions return the start time of the current transaction,
 -- their values do not change during the transaction.This is considered a feature: the
 -- intent is to allow a single transaction to have a consistent notion of the “current” time,
@@ -89,12 +62,13 @@ values
 
 select
   description
+  , timestamp
   , timestamp at time zone 'Europe/Helsinki' as HelsinkiTime
   , timestamp at time zone 'Europe/Stockholm' as StockholmTime
 from event;
 
 select description, timestamp as utc, timestamp at time zone 'Europe/Helsinki' as HelsinkiTime
-from event
+from event;
 
 
 select
@@ -113,27 +87,3 @@ select
   timestamp at time zone 'Europe/Helsinki' as HelsinkiTime,
   timestamp at time zone 'Europe/Stockholm' as StockholmTime
 from event;
-
--- JSONB
-
-create table books (
-  data jsonb
-);
-
-select * from books;
-
-INSERT INTO books VALUES ('{"title": "Sleeping Beauties", "genres": ["Fiction", "Thriller", "Horror"], "published": false}');
-INSERT INTO books VALUES ('{"title": "Influence", "genres": ["Marketing & Sales", "Self-Help ", "Psychology"], "published": true}');
-INSERT INTO books VALUES ('{"title": "The Dictator''s Handbook", "genres": ["Law", "Politics"], "authors": ["Bruce Bueno de Mesquita", "Alastair Smith"], "published": true}');
-INSERT INTO books VALUES ('{"title": "Deep Work", "genres": ["Productivity", "Reference"], "published": true}');
-INSERT INTO books VALUES ('{"title": "Siddhartha", "genres": ["Fiction", "Spirituality"], "published": true}');
-
-select data -> 'title' as title
-from books;
-
-select jsonb_array_elements_text(data -> 'genres')
-from books;
-
-SELECT data->'title'
-FROM books
-WHERE data->'genres' @> '["Fiction"]'::jsonb;
