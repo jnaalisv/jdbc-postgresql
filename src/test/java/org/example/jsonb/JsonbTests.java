@@ -1,15 +1,11 @@
 package org.example.jsonb;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.sql.Env;
-import org.example.sql.ResultSetUtil;
+import org.example.AppContext;
+import org.example.sql.RdbUtil;
 import org.example.sql.SqlUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonbTests {
-    private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
+    private static final RdbUtil rdbUtil = AppContext.rdbUtil;
+    private static final SqlUtil sqlUtil = AppContext.sqlUtil;
 
     @BeforeEach
     void clearDb() {
@@ -45,16 +42,7 @@ class JsonbTests {
     void jsonbCanBeDeserializedIntoAnObject() {
         givenSomeTestData();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        List<BookData> books = sqlUtil.selectList("select data from books", resultSet -> {
-            try {
-                return objectMapper.readValue(resultSet.getString(1), BookData.class);
-            } catch (IOException | SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        List<BookData> books = rdbUtil.selectList("select data from books", 1, BookData.class);
 
         assertEquals(5, books.size());
     }
@@ -63,16 +51,10 @@ class JsonbTests {
     void oneJsonbRowCanBeDeserializedCompletely() {
         givenSomeTestData();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        Optional<BookData> maybeSiddhartha = sqlUtil.selectOne("select data from books where data ->> 'title' = 'Siddhartha'", resultSet -> {
-            try {
-                return objectMapper.readValue(resultSet.getString(1), BookData.class);
-            } catch (IOException | SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        Optional<BookData> maybeSiddhartha = rdbUtil.selectOne(
+                "select data from books where data ->> 'title' = 'Siddhartha'",
+                1,
+                BookData.class);
 
         assertTrue(maybeSiddhartha.isPresent());
 
@@ -89,21 +71,13 @@ class JsonbTests {
     void letsReadToAnEntity() {
         givenSomeTestData();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        Optional<BookEntity> maybeSiddhartha = sqlUtil.selectOne(
+        Optional<BookEntity> maybeSiddhartha = rdbUtil.selectOne(
                 "select id, data from books where data ->> 'title' = 'Siddhartha'",
                 BookEntity::new,
-                ResultSetUtil.getLong(1),
-                resultSet -> {
-                    try {
-                        return objectMapper.readValue(resultSet.getString(2), BookData.class);
-                    } catch (IOException | SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                );
+                RdbUtil.readLong(1),
+                rdbUtil.readType(2, BookData.class)
+        );
+
         assertTrue(maybeSiddhartha.isPresent());
 
         BookEntity siddhartha = maybeSiddhartha.get();
