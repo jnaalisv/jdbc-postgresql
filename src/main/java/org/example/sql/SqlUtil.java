@@ -94,26 +94,6 @@ public class SqlUtil {
         });
     }
 
-    public static Function<ResultSet, Timestamp> getTimestamp(String columnLabel) {
-        return resultSet -> {
-            try {
-                return resultSet.getTimestamp(columnLabel);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static Function<ResultSet, String> getString(String columnLabel) {
-        return resultSet -> {
-            try {
-                return resultSet.getString(columnLabel);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
     public <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper) {
         return execQuery(query, resultSet -> {
             try {

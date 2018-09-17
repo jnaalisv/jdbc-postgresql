@@ -14,8 +14,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.sql.SqlUtil.getString;
-import static org.example.sql.SqlUtil.getTimestamp;
+import static org.example.sql.ResultSetUtil.getString;
+import static org.example.sql.ResultSetUtil.getTimestamp;
 import static org.example.sql.SqlUtil.stringParam;
 import static org.example.sql.SqlUtil.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;

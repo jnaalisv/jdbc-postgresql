@@ -12,11 +12,14 @@ repositories {
 
 ext["postgreSqlVersion"] = "42.2.+"
 ext["junitVersion"] = "5.3.+"
+ext["mockitoVersion"] = "2.+"
 
 dependencies {
     compile ("org.postgresql:postgresql:$postgreSqlVersion")
 
     testCompile ("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testCompile ("org.mockito:mockito-core:$mockitoVersion")
+    testCompile ("org.mockito:mockito-junit-jupiter:$mockitoVersion")
 
     testRuntime ("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
