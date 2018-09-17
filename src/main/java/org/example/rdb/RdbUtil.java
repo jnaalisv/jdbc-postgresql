@@ -106,15 +106,10 @@ public class RdbUtil {
 
     @SafeVarargs
     public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return sqlUtil.prepareStatement(updateOrInsert, stmt -> {
-            try {
-                int paramIndex = 0;
-                for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
-                    consumer.accept(++paramIndex, stmt);
-                }
-                return stmt.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return sqlUtil.executeUpdate(updateOrInsert, stmt -> {
+            int paramIndex = 0;
+            for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                consumer.accept(++paramIndex, stmt);
             }
         });
     }
