@@ -17,6 +17,16 @@ public class ResultSetUtil {
         };
     }
 
+    public static Function<ResultSet, Long> getLong(int columnIndex) {
+        return resultSet -> {
+            try {
+                return resultSet.getLong(columnIndex);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public static Function<ResultSet, String> getString(String columnLabel) {
         return resultSet -> {
             try {

@@ -1,4 +1,9 @@
+CREATE SEQUENCE serial START 1;
+
+drop table books;
+
 create table books (
+  id integer primary key,
   data jsonb
 );
 

@@ -3,6 +3,7 @@ package org.example.jsonb;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.sql.Env;
+import org.example.sql.ResultSetUtil;
 import org.example.sql.SqlUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,9 +48,9 @@ class JsonbTests {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        List<Book> books = sqlUtil.selectList("select data from books", resultSet -> {
+        List<BookData> books = sqlUtil.selectList("select data from books", resultSet -> {
             try {
-                return objectMapper.readValue(resultSet.getString(1), Book.class);
+                return objectMapper.readValue(resultSet.getString(1), BookData.class);
             } catch (IOException | SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -65,9 +66,9 @@ class JsonbTests {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        Optional<Book> maybeSiddhartha = sqlUtil.selectOne("select data from books where data ->> 'title' = 'Siddhartha'", resultSet -> {
+        Optional<BookData> maybeSiddhartha = sqlUtil.selectOne("select data from books where data ->> 'title' = 'Siddhartha'", resultSet -> {
             try {
-                return objectMapper.readValue(resultSet.getString(1), Book.class);
+                return objectMapper.readValue(resultSet.getString(1), BookData.class);
             } catch (IOException | SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -75,7 +76,7 @@ class JsonbTests {
 
         assertTrue(maybeSiddhartha.isPresent());
 
-        Book siddhartha = maybeSiddhartha.get();
+        BookData siddhartha = maybeSiddhartha.get();
 
         assertEquals("Siddhartha", siddhartha.title);
         assertEquals(Arrays.asList(
@@ -84,9 +85,44 @@ class JsonbTests {
         assertTrue(siddhartha.published);
     }
 
+    @Test
+    void letsReadToAnEntity() {
+        givenSomeTestData();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        Optional<BookEntity> maybeSiddhartha = sqlUtil.selectOne(
+                "select id, data from books where data ->> 'title' = 'Siddhartha'",
+                BookEntity::new,
+                ResultSetUtil.getLong(1),
+                resultSet -> {
+                    try {
+                        return objectMapper.readValue(resultSet.getString(2), BookData.class);
+                    } catch (IOException | SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                );
+        assertTrue(maybeSiddhartha.isPresent());
+
+        BookEntity siddhartha = maybeSiddhartha.get();
+
+        assertEquals("Siddhartha", siddhartha.getBookData().title);
+        assertEquals(Arrays.asList(
+                "Fiction", "Spirituality"
+        ), siddhartha.getBookData().genres);
+        assertTrue(siddhartha.getBookData().published);
+    }
+
     void givenSomeTestData() {
         sqlUtil.updateOrInsert(
-                "insert into books values(?::jsonb), (?::jsonb), (?::jsonb), (?::jsonb), (?::jsonb)",
+                "insert into books values" +
+                        "(nextval('serial'), ?::jsonb), " +
+                        "(nextval('serial'), ?::jsonb), " +
+                        "(nextval('serial'), ?::jsonb), " +
+                        "(nextval('serial'), ?::jsonb), " +
+                        "(nextval('serial'), ?::jsonb)",
                 objectParam(1, "{\"title\": \"Sleeping Beauties\", \"genres\": [\"Fiction\", \"Thriller\", \"Horror\"], \"published\": false}"),
                 objectParam(2, "{\"title\": \"Influence\", \"genres\": [\"Marketing & Sales\", \"Self-Help \", \"Psychology\"], \"published\": true}"),
                 objectParam(3, "{\"title\": \"The Dictator's Handbook\", \"genres\": [\"Law\", \"Politics\"], \"authors\": [\"Bruce Bueno de Mesquita\", \"Alastair Smith\"], \"published\": true}"),
