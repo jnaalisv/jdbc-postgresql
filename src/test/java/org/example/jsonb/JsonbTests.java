@@ -1,5 +1,6 @@
 package org.example.jsonb;
 
+import org.example.sql.Env;
 import org.example.sql.SqlUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonbTests {
-    private static final SqlUtil sqlUtil = new SqlUtil("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
+    private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
 
     @BeforeEach
     void clearDb() {

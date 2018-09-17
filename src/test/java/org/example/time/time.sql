@@ -1,5 +1,10 @@
 -- https://www.postgresql.org/docs/current/static/datatype-datetime.html#DATATYPE-DATETIME-INPUT
 
+create table event (
+  description varchar,
+  timestamp timestamptz
+);
+
 -- "For timestamp with time zone, the internally stored value is always in UTC"
 
 -- set the current session time zone, UTC is default
@@ -43,13 +48,6 @@ select
 -- their values do not change during the transaction.This is considered a feature: the
 -- intent is to allow a single transaction to have a consistent notion of the “current” time,
 -- so that multiple modifications within the same transaction bear the same time stamp
-
-
-create table event (
-  description varchar,
-  timestamp timestamptz
-);
-
 
 -- different ways of inserting timestamptz
 insert

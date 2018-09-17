@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SqlUtilTest {
-    private static final SqlUtil sqlUtil = new SqlUtil("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
+    private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
 
     @Test
     void selectOneConstant_returnsConstantValue() {
