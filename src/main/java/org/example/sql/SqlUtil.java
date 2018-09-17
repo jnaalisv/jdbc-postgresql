@@ -35,6 +35,17 @@ public class SqlUtil {
         });
     }
 
+    public <T> T execQuery(String query, Consumer<PreparedStatement> statementConsumer, Function<ResultSet, T> rsMapper) {
+        return prepareStatement(query, stmt -> {
+            statementConsumer.accept(stmt);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                return rsMapper.apply(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public int executeUpdate(String updateOrInsert, Consumer<PreparedStatement> statementConsumer) {
         return prepareStatement(updateOrInsert, stmt -> {
             try {

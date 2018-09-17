@@ -36,6 +36,27 @@ public class RdbUtil {
         });
     }
 
+    @SafeVarargs
+    public final <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return sqlUtil.execQuery(
+                query,
+                stmt -> {
+                    int paramIndex = 0;
+                    for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                        consumer.accept(++paramIndex, stmt);
+                    }
+                },
+                resultSet -> {
+                    try {
+                        final T returnValue = resultSet.next() ? rsMapper.apply(resultSet) : null;
+                        return Optional.ofNullable(returnValue);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                );
+    }
+
     public <T> List<T> selectList(final String query, Function<ResultSet, T> rsMapper) {
         return sqlUtil.execQuery(query, resultSet -> {
             final List<T> resultList = new ArrayList<>();

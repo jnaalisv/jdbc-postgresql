@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.example.rdb.RdbUtil.objectParam;
+import static org.example.rdb.RdbUtil.stringParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +44,22 @@ class JsonbTests {
         List<BookData> books = rdbUtil.selectList("select data from books", 1, BookData.class);
 
         assertEquals(5, books.size());
+    }
+
+    @Test
+    void selectWithParameters() {
+        givenSomeTestData();
+
+        String expectedTitle = "Siddhartha";
+
+        Optional<String> maybeTitle = rdbUtil.selectOne(
+                "select data ->> 'title' as title from books where data ->> 'title' = ?",
+                ResultSetUtil.readString("title"),
+                stringParam(expectedTitle)
+        );
+
+        assertTrue(maybeTitle.isPresent());
+        assertEquals(expectedTitle, maybeTitle.get());
     }
 
     @Test
