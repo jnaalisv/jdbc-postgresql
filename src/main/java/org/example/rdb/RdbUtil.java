@@ -197,4 +197,14 @@ public class RdbUtil {
             }
         };
     }
+
+    public static BiConsumer<Integer, PreparedStatement> booleanParam(boolean bool) {
+        return (index, preparedStatement) -> {
+            try {
+                preparedStatement.setBoolean(index, bool);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
 }

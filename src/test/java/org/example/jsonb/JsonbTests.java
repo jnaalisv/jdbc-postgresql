@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.rdb.RdbUtil.booleanParam;
 import static org.example.rdb.RdbUtil.objectParam;
 import static org.example.rdb.RdbUtil.stringParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +27,12 @@ class JsonbTests {
     @Test
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
-        List<String> titles = rdbUtil.selectList("select data ->> 'title' as title from books", ResultSetUtil.readString("title"));
+        List<String> titles = rdbUtil.selectList(
+                "select data ->> 'title' as title from books where ? = ?",
+                ResultSetUtil.readString("title"),
+                booleanParam(true),
+                booleanParam(true)
+                );
 
         assertEquals(Arrays.asList(
                 "Sleeping Beauties",
@@ -41,9 +47,9 @@ class JsonbTests {
     void jsonbCanBeDeserializedIntoAnObject() {
         givenSomeTestData();
 
-        List<BookData> books = rdbUtil.selectList("select data from books", 1, BookData.class);
+        List<BookData> books = rdbUtil.selectList("select data from books where (data ->> 'published')::boolean = ?", 1, BookData.class, booleanParam(true));
 
-        assertEquals(5, books.size());
+        assertEquals(4, books.size());
     }
 
     @Test
@@ -66,16 +72,19 @@ class JsonbTests {
     void oneJsonbRowCanBeDeserializedCompletely() {
         givenSomeTestData();
 
+        String expectedTitle = "Siddhartha";
+
         Optional<BookData> maybeSiddhartha = rdbUtil.selectOne(
-                "select data from books where data ->> 'title' = 'Siddhartha'",
+                "select data from books where data ->> 'title' = ?",
                 1,
-                BookData.class);
+                BookData.class,
+                stringParam(expectedTitle));
 
         assertTrue(maybeSiddhartha.isPresent());
 
         BookData siddhartha = maybeSiddhartha.get();
 
-        assertEquals("Siddhartha", siddhartha.title);
+        assertEquals(expectedTitle, siddhartha.title);
         assertEquals(Arrays.asList(
                 "Fiction", "Spirituality"
         ), siddhartha.genres);

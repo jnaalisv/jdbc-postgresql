@@ -24,3 +24,6 @@ from books;
 SELECT data->'title'
 FROM books
 WHERE data->'genres' @> '["Fiction"]'::jsonb;
+
+
+select data  from books where (data ->> 'published')::boolean = ?
