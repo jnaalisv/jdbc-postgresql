@@ -1,8 +1,10 @@
 
 Start the database:
 ```
-$ sudo docker-compose -f postgres.yml up
+$ sudo docker-compose -f postgres.yml up -d
 ```
+
+Migrations have to be applied manually.
 
 Connect to the database:
 ```
