@@ -46,24 +46,36 @@ public class RdbUtil {
                 );
     }
 
-    public <T> List<T> selectList(final String query, Function<ResultSet, T> rsMapper) {
-        return sqlUtil.execQuery(query, resultSet -> {
-            final List<T> resultList = new ArrayList<>();
-            try {
-                while (resultSet.next()) {
-                    resultList.add(rsMapper.apply(resultSet));
+    @SafeVarargs
+    public final <T> List<T> selectList(final String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return sqlUtil.execQuery(
+                query,
+                stmt -> {
+                    int paramIndex = 0;
+                    for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                        consumer.accept(++paramIndex, stmt);
+                    }
+                },
+                resultSet -> {
+                    final List<T> resultList = new ArrayList<>();
+                    try {
+                        while (resultSet.next()) {
+                            resultList.add(rsMapper.apply(resultSet));
+                        }
+                        return resultList;
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                return resultList;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        );
     }
 
-    public <T> List<T> selectList(String query, int columnIndex, Class<T> columnClassT) {
+    @SafeVarargs
+    public final <T> List<T> selectList(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return selectList(
                 query,
-                readType(columnIndex, columnClassT)
+                readType(columnIndex, columnClassT),
+                preparedStatementConsumers
         );
     }
 
@@ -88,7 +100,8 @@ public class RdbUtil {
         };
     }
 
-    public <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT) {
+    @SafeVarargs
+    public final <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
         return selectOne(query, resultSet -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
@@ -96,22 +109,24 @@ public class RdbUtil {
             } catch (IOException | SQLException e) {
                 throw new RuntimeException(e);
             }
-        });
+        }, preparedStatementConsumers);
     }
 
-    public <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA) {
+    @SafeVarargs
+    public final <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
         return selectOne(q, rs -> {
             A a = mapA.apply(rs);
             return ctor.apply(a);
-        });
+        }, preparedStatementConsumers);
     }
 
-    public <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+    @SafeVarargs
+    public final <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
         return selectOne(query, rs -> {
             A a = mapA.apply(rs);
             B b = mapB.apply(rs);
             return ctor.apply(a, b);
-        });
+        }, preparedStatementConsumers);
     }
 
     @SafeVarargs
