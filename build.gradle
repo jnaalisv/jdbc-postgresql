@@ -23,3 +23,7 @@ dependencies {
 
     testRuntime ("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
+
+test {
+    useJUnitPlatform()
+}
