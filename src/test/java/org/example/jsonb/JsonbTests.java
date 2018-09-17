@@ -1,4 +1,4 @@
-package org.example;
+package org.example.jsonb;
 
 import org.example.sql.SqlDb;
 import org.junit.jupiter.api.BeforeEach;
