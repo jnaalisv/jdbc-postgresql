@@ -13,11 +13,11 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SqlDb {
+public class SqlUtil {
 
     private final String connectionUrl;
 
-    public SqlDb(String connectionUrl) {
+    public SqlUtil(String connectionUrl) {
         this.connectionUrl = connectionUrl;
     }
 

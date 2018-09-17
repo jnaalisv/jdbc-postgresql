@@ -1,8 +1,6 @@
 package org.example.time;
 
-import org.example.time.Event;
-import org.example.sql.SqlDb;
-import org.example.time.TimeDTO;
+import org.example.sql.SqlUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,15 +14,15 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.sql.SqlDb.getString;
-import static org.example.sql.SqlDb.getTimestamp;
-import static org.example.sql.SqlDb.stringParam;
-import static org.example.sql.SqlDb.timestampParam;
+import static org.example.sql.SqlUtil.getString;
+import static org.example.sql.SqlUtil.getTimestamp;
+import static org.example.sql.SqlUtil.stringParam;
+import static org.example.sql.SqlUtil.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DateTimeTests {
-    private static final SqlDb sqlDb = new SqlDb("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
+    private static final SqlUtil sqlUtil = new SqlUtil("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password");
 
     private static final ZoneId UTC = ZoneId.of("UTC");
     private static final ZoneId EU_STOCKHOLM = ZoneId.of("Europe/Stockholm");
@@ -34,14 +32,14 @@ class DateTimeTests {
 
     @BeforeEach
     void clearDb() {
-        sqlDb.updateOrInsert("delete from event;");
+        sqlUtil.updateOrInsert("delete from event;");
     }
 
     @Test
     void shouldReadIntoSimpleDTO() {
         givenOneRowInEventTable();
 
-        Optional<TimeDTO> maybeTs = sqlDb.selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
+        Optional<TimeDTO> maybeTs = sqlUtil.selectOne("select timestamp from event", TimeDTO::new, getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -57,7 +55,7 @@ class DateTimeTests {
     }
 
     private void insertEvent(Event event) {
-        sqlDb.updateOrInsert("insert into event values(?,?)",
+        sqlUtil.updateOrInsert("insert into event values(?,?)",
                 stringParam(1, event.description),
                 timestampParam(2, event.timestamp)
         );
@@ -67,7 +65,7 @@ class DateTimeTests {
     void shouldReadIntoEvent() {
         givenOneRowInEventTable();
 
-        Optional<Event> maybeTs = sqlDb.selectOne(
+        Optional<Event> maybeTs = sqlUtil.selectOne(
                 "select description, timestamp from event",
                 Event::new,
                 getString("description"),
@@ -80,7 +78,7 @@ class DateTimeTests {
     void shouldReadOneRowFromTheDb() {
         givenOneRowInEventTable();
 
-        Optional<Timestamp> maybeTs = sqlDb.selectOne("select timestamp from event", getTimestamp("timestamp"));
+        Optional<Timestamp> maybeTs = sqlUtil.selectOne("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -88,7 +86,7 @@ class DateTimeTests {
     void shouldReadAListFromTheDb() {
         givenOneRowInEventTable();
 
-        List<Timestamp> timestamps = sqlDb.selectList("select timestamp from event", getTimestamp("timestamp"));
+        List<Timestamp> timestamps = sqlUtil.selectList("select timestamp from event", getTimestamp("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
@@ -96,7 +94,7 @@ class DateTimeTests {
     void shouldReadAListOfEvents() {
         givenOneRowInEventTable();
 
-        List<Event> events = sqlDb.selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
+        List<Event> events = sqlUtil.selectList("select description, timestamp from event", Event::new, getString("description"), getTimestamp("timestamp"));
         assertTrue(events.size() > 0);
     }
 
@@ -109,13 +107,13 @@ class DateTimeTests {
 
         final Timestamp eventTimestamp = Timestamp.from(zonedDateTime.toInstant());
 
-        int count = sqlDb.updateOrInsert("insert into event values(?,?)",
+        int count = sqlUtil.updateOrInsert("insert into event values(?,?)",
                 stringParam(1, "Conference"),
                 timestampParam(2, eventTimestamp)
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = sqlDb.selectOne(
+        Optional<Timestamp> maybeEventTimestamp = sqlUtil.selectOne(
                 "select timestamp from event where description = 'Conference'",
                 getTimestamp("timestamp")
         );
@@ -137,13 +135,13 @@ class DateTimeTests {
         final LocalDateTime localDateTime = LocalDateTime.of(date2018_09_15, eventTime);
         final Timestamp eventTimestamp = Timestamp.valueOf(localDateTime);
 
-        int count = sqlDb.updateOrInsert("insert into event values(?,?)",
+        int count = sqlUtil.updateOrInsert("insert into event values(?,?)",
                 stringParam(1, "Local Conference"),
                 timestampParam(2, eventTimestamp)
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = sqlDb.selectOne(
+        Optional<Timestamp> maybeEventTimestamp = sqlUtil.selectOne(
                 "select timestamp from event where description = 'Local Conference'",
                 getTimestamp("timestamp")
         );
