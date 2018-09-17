@@ -26,4 +26,14 @@ public class ResultSetUtil {
             }
         };
     }
+
+    public static Function<ResultSet, String> getString(int columnIndex) {
+        return resultSet -> {
+            try {
+                return resultSet.getString(columnIndex);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
 }

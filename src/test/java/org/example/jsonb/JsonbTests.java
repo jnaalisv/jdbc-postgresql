@@ -1,17 +1,20 @@
 package org.example.jsonb;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.sql.Env;
 import org.example.sql.SqlUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.example.sql.ResultSetUtil.getString;
 import static org.example.sql.SqlUtil.objectParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonbTests {
     private static final SqlUtil sqlUtil = new SqlUtil(Env.postgresConnUrl);
@@ -33,6 +36,24 @@ class JsonbTests {
                 "Deep Work",
                 "Siddhartha"
         ), titles);
+    }
+
+    @Test
+    void jsonbCanBeDeserializedIntoAnObject() {
+        givenSomeTestData();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        List<Book> books = sqlUtil.selectList("select data from books", resultSet -> {
+            try {
+                return objectMapper.readValue(resultSet.getString(1), Book.class);
+            } catch (IOException | SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        assertEquals(5, books.size());
     }
 
     void givenSomeTestData() {
