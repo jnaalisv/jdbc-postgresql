@@ -3,6 +3,7 @@ package org.example.jsonb;
 import org.example.AppContext;
 import org.example.rdb.RdbUtil;
 import org.example.sql.ResultSetUtil;
+import org.example.wizard.SqlWizard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +28,11 @@ class JsonbTests {
     @Test
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
-        List<String> titles = rdbUtil.selectList(
-                "select data ->> 'title' as title from books where ? = ?",
-                ResultSetUtil.readString("title"),
-                booleanParam(true),
-                booleanParam(true)
-                );
+
+        SqlWizard sqlWizard = new SqlWizard(rdbUtil);
+        List<String> titles = sqlWizard
+                .select("select data ->> 'title' as title from books where ? = ?", booleanParam(true), booleanParam(true))
+                .asList(ResultSetUtil.readString("title"));
 
         assertEquals(Arrays.asList(
                 "Sleeping Beauties",
