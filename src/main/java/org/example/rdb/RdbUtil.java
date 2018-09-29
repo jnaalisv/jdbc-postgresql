@@ -74,7 +74,7 @@ public class RdbUtil {
     public final <T> List<T> selectList(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return selectList(
                 query,
-                deserializeStringValueToObject(columnIndex, columnClassT),
+                readJsonToObject(columnIndex, columnClassT),
                 preparedStatementConsumers
         );
     }
@@ -89,7 +89,7 @@ public class RdbUtil {
         };
     }
 
-    public <T> Function<ResultSet, T> deserializeStringValueToObject(int columnIndex, Class<T> columnClassT) {
+    public <T> Function<ResultSet, T> readJsonToObject(int columnIndex, Class<T> columnClassT) {
         return resultSet -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
