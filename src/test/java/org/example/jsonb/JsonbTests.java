@@ -47,7 +47,11 @@ class JsonbTests {
     void jsonbCanBeDeserializedIntoAnObject() {
         givenSomeTestData();
 
-        List<BookData> books = rdbUtil.selectList("select data from books where (data ->> 'published')::boolean = ?", 1, BookData.class, booleanParam(true));
+        var sqlWizard = new SqlWizard(rdbUtil);
+        var books = sqlWizard
+                .select("select data from books where (data ->> 'published')::boolean = ?", booleanParam(true))
+                .asList( BookData.class);
+
 
         assertEquals(4, books.size());
     }

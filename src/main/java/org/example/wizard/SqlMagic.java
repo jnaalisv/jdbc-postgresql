@@ -30,4 +30,15 @@ public class SqlMagic {
     public <T> List<T> asList(Function<ResultSet, T> rsMapper) {
         return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
     }
+
+    /**
+     *
+     * */
+    public <T> List<T> asList(Class<T> columnClassT) {
+        return rdbUtil.selectList(
+                query,
+                rdbUtil.deserializeStringValueToObject(1, columnClassT),
+                preparedStatementConsumers
+        );
+    }
 }
