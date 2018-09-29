@@ -13,7 +13,7 @@ public class SqlWizard {
     }
 
     public SqlMagic select(String query, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return new SqlMagic(query, preparedStatementConsumers);
+        return new SqlMagic(rdbUtil, query, preparedStatementConsumers);
     }
 
 }
