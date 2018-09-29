@@ -99,7 +99,7 @@ class JsonbTests {
                 "select id, data from books where data ->> 'title' = 'Siddhartha'",
                 BookEntity::new,
                 RdbUtil.readLong(1),
-                rdbUtil.readType(2, BookData.class)
+                rdbUtil.deserializeStringValueToObject(2, BookData.class)
         );
 
         assertTrue(maybeSiddhartha.isPresent());
