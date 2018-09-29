@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class SqlMagic {
@@ -25,6 +26,14 @@ public class SqlMagic {
     public <T> Optional<T> as(Function<ResultSet, T> rsMapper) {
 
         return null;
+    }
+
+    public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, Function<ResultSet, B> mapB) {
+        return rdbUtil.selectOne(query, rs -> {
+            A a = mapA.apply(rs, 1);
+            B b = mapB.apply(rs);
+            return ctor.apply(a, b);
+        }, preparedStatementConsumers);
     }
 
     public <T> List<T> asList(Function<ResultSet, T> rsMapper) {

@@ -99,16 +99,18 @@ class JsonbTests {
     void letsReadToAnEntity() {
         givenSomeTestData();
 
-        Optional<BookEntity> maybeSiddhartha = rdbUtil.selectOne(
-                "select id, data from books where data ->> 'title' = 'Siddhartha'",
-                BookEntity::new,
-                RdbUtil.readLong(1),
-                rdbUtil.deserializeStringValueToObject(2, BookData.class)
-        );
+        var sqlWizard = new SqlWizard(rdbUtil);
+        var maybeSiddhartha = sqlWizard
+                .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
+                .as(
+                    BookEntity::new,
+                    RdbUtil.readLong(),
+                    rdbUtil.readJsonToObject(2, BookData.class)
+                );
 
         assertTrue(maybeSiddhartha.isPresent());
 
-        BookEntity siddhartha = maybeSiddhartha.get();
+        var siddhartha = maybeSiddhartha.get();
 
         assertEquals("Siddhartha", siddhartha.getBookData().title);
         assertEquals(Arrays.asList(

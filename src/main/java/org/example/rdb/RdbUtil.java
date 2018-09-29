@@ -79,8 +79,8 @@ public class RdbUtil {
         );
     }
 
-    public static Function<ResultSet, Long> readLong(int columnIndex) {
-        return resultSet -> {
+    public static BiFunction<ResultSet, Integer, Long> readLong() {
+        return (var resultSet, var columnIndex) -> {
             try {
                 return resultSet.getLong(columnIndex);
             } catch (SQLException e) {
