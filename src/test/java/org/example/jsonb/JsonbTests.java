@@ -2,7 +2,7 @@ package org.example.jsonb;
 
 import org.example.AppContext;
 import org.example.rdb.RdbUtil;
-import org.example.sql.ResultSetUtil;
+import org.example.sql.Results;
 import org.example.wizard.SqlWizard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class JsonbTests {
 
         List<String> titles = sqlWizard
                 .select("select data ->> 'title' as title from books where ? = ?", booleanParam(true), booleanParam(true))
-                .asList(ResultSetUtil.readString("title"));
+                .asList(Results.readString("title"));
 
         assertEquals(Arrays.asList(
                 "Sleeping Beauties",
@@ -61,7 +61,7 @@ class JsonbTests {
 
         var maybeTitle = sqlWizard
                 .select("select data ->> 'title' as title from books where data ->> 'title' = ?", stringParam(expectedTitle))
-                .as(ResultSetUtil.readString("title"));
+                .as(Results.readString("title"));
 
         assertTrue(maybeTitle.isPresent());
         assertEquals(expectedTitle, maybeTitle.get());
@@ -96,8 +96,8 @@ class JsonbTests {
                 .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
                 .as(
                     BookEntity::new,
-                    ResultSetUtil.readLong(),
-                    ResultSetUtil.readJsonAs(BookData.class)
+                    Results.longValue(),
+                    Results.jsonValueAs(BookData.class)
                 );
 
         assertTrue(maybeSiddhartha.isPresent());
@@ -119,8 +119,8 @@ class JsonbTests {
                 .select("select id, data from books")
                 .asList(
                         BookEntity::new,
-                        ResultSetUtil.readLong(),
-                        ResultSetUtil.readJsonAs(BookData.class)
+                        Results.longValue(),
+                        Results.jsonValueAs(BookData.class)
                 );
 
         assertEquals(5, books.size());

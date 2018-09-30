@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class ResultSetUtil {
+public class Results {
 
     private static ObjectMapper objectMapper = buildDefaultOM();
 
@@ -20,7 +20,7 @@ public class ResultSetUtil {
         return om;
     }
 
-    public static <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
+    public static <T> BiFunction<ResultSet, Integer, T> jsonValueAs(Class<T> columnClassT) {
         return (resultSet, columnIndex) -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
@@ -31,7 +31,7 @@ public class ResultSetUtil {
         };
     }
 
-    public static BiFunction<ResultSet, Integer, Long> readLong() {
+    public static BiFunction<ResultSet, Integer, Long> longValue() {
         return (var resultSet, var columnIndex) -> {
             try {
                 return resultSet.getLong(columnIndex);

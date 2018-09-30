@@ -1,7 +1,7 @@
 package org.example.wizard;
 
 import org.example.rdb.RdbUtil;
-import org.example.sql.ResultSetUtil;
+import org.example.sql.Results;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -55,7 +55,7 @@ public class SqlMagic {
     public <T> List<T> fromJsonColumnAsListOf(Class<T> columnClassT) {
         return rdbUtil.selectList(
                 query,
-                ResultSetUtil.readJsonAs(columnClassT),
+                Results.jsonValueAs(columnClassT),
                 preparedStatementConsumers
         );
     }

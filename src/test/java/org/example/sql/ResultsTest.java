@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class ResultSetUtilTest {
+class ResultsTest {
 
     @Test
     void getString_returnsStringByColumn(@Mock ResultSet resultSet) throws SQLException {
         String columnLabel = "columnA";
 
-        ResultSetUtil.readString(columnLabel).apply(resultSet);
+        Results.readString(columnLabel).apply(resultSet);
 
         verify(resultSet).getString(columnLabel);
     }
