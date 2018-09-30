@@ -24,8 +24,11 @@ public class SqlMagic {
     }
 
     public <T> Optional<T> as(Function<ResultSet, T> rsMapper) {
-
-        return null;
+        return rdbUtil.selectOne(
+                query,
+                rsMapper,
+                preparedStatementConsumers
+        );
     }
 
     public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {

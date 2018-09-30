@@ -60,11 +60,9 @@ class JsonbTests {
 
         String expectedTitle = "Siddhartha";
 
-        Optional<String> maybeTitle = rdbUtil.selectOne(
-                "select data ->> 'title' as title from books where data ->> 'title' = ?",
-                ResultSetUtil.readString("title"),
-                stringParam(expectedTitle)
-        );
+        var maybeTitle = sqlWizard
+                .select("select data ->> 'title' as title from books where data ->> 'title' = ?", stringParam(expectedTitle))
+                .as(ResultSetUtil.readString("title"));
 
         assertTrue(maybeTitle.isPresent());
         assertEquals(expectedTitle, maybeTitle.get());
