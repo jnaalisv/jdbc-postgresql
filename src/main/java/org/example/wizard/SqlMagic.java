@@ -1,7 +1,6 @@
 package org.example.wizard;
 
 import org.example.rdb.RdbUtil;
-import org.example.sql.Results;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,6 +27,10 @@ public class SqlMagic {
         return rdbUtil.selectOne(query, rsMapper, preparedStatementConsumers);
     }
 
+    public <T> Optional<T> as(BiFunction<ResultSet, Integer, T> rsMapper) {
+        return rdbUtil.selectOne(query, rsMapper, preparedStatementConsumers);
+    }
+
     public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
         return rdbUtil.selectOne(query, ctor, mapA, mapB, preparedStatementConsumers);
     }
@@ -36,22 +39,11 @@ public class SqlMagic {
         return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
     }
 
+    public <T> List<T> asList(BiFunction<ResultSet, Integer, T> rsMapper) {
+        return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
+    }
+
     public final <T, A, B> List<T> asList(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
         return rdbUtil.selectList(query, ctor, mapA, mapB, preparedStatementConsumers);
-    }
-
-    public <T> List<T> fromJsonColumnAsListOf(Class<T> jsonColumnType) {
-        return rdbUtil.selectList(
-                query,
-                Results.jsonValueAs(jsonColumnType),
-                preparedStatementConsumers
-        );
-    }
-
-    public <T> Optional<T> fromJsonColumnAs(Class<T> jsonColumnType) {
-        return rdbUtil.selectOne(
-                query,
-                Results.jsonValueAs(jsonColumnType),
-                preparedStatementConsumers);
     }
 }
