@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonbTests {
     private static final RdbUtil rdbUtil = AppContext.rdbUtil;
+    private static final SqlWizard sqlWizard = new SqlWizard(rdbUtil);
 
     @BeforeEach
     void clearDb() {
@@ -29,7 +30,6 @@ class JsonbTests {
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
 
-        SqlWizard sqlWizard = new SqlWizard(rdbUtil);
         List<String> titles = sqlWizard
                 .select("select data ->> 'title' as title from books where ? = ?", booleanParam(true), booleanParam(true))
                 .asList(ResultSetUtil.readString("title"));
@@ -47,7 +47,6 @@ class JsonbTests {
     void jsonbCanBeDeserializedIntoAnObject() {
         givenSomeTestData();
 
-        var sqlWizard = new SqlWizard(rdbUtil);
         var books = sqlWizard
                 .select("select data from books where (data ->> 'published')::boolean = ?", booleanParam(true))
                 .asList( BookData.class);
@@ -99,7 +98,6 @@ class JsonbTests {
     void letsReadToAnEntity() {
         givenSomeTestData();
 
-        var sqlWizard = new SqlWizard(rdbUtil);
         var maybeSiddhartha = sqlWizard
                 .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
                 .as(
