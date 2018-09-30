@@ -128,20 +128,6 @@ public class RdbUtil {
         });
     }
 
-    @FunctionalInterface
-    public interface Fun3<A, B, C, R> {
-        R apply(A a, B b, C c);
-    }
-
-    public <T, A, B, C> Optional<T> selectOne(String query, Fun3<A, B, C, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, Function<ResultSet, C> mapC) {
-        return selectOne(query, resultSet -> {
-            A a = mapA.apply(resultSet);
-            B b = mapB.apply(resultSet);
-            C c = mapC.apply(resultSet);
-            return ctor.apply(a, b, c);
-        });
-    }
-
     public <T, A> List<T> selectList(String query, Function<A, T> ctor, Function<ResultSet, A> mapA) {
         return selectList(query, rs -> {
             A a = mapA.apply(rs);
