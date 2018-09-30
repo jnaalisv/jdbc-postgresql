@@ -12,7 +12,8 @@ public class SqlWizard {
         this.rdbUtil = rdbUtil;
     }
 
-    public SqlMagic select(String query, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+    @SafeVarargs
+    public final SqlMagic select(String query, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return new SqlMagic(rdbUtil, query, preparedStatementConsumers);
     }
 

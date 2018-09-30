@@ -51,7 +51,6 @@ class JsonbTests {
                 .select("select data from books where (data ->> 'published')::boolean = ?", booleanParam(true))
                 .asList( BookData.class);
 
-
         assertEquals(4, books.size());
     }
 
