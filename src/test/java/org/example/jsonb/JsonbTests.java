@@ -49,7 +49,7 @@ class JsonbTests {
 
         var books = sqlWizard
                 .select("select data from books where (data ->> 'published')::boolean = ?", booleanParam(true))
-                .asList( BookData.class);
+                .asJsonToListOf( BookData.class);
 
         assertEquals(4, books.size());
     }
