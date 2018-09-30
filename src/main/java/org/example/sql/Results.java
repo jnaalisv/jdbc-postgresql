@@ -41,7 +41,7 @@ public class Results {
         };
     }
 
-    public static Function<ResultSet, Timestamp> readTimestamp(String columnLabel) {
+    public static Function<ResultSet, Timestamp> timeStampFrom(String columnLabel) {
         return resultSet -> {
             try {
                 return resultSet.getTimestamp(columnLabel);
@@ -51,7 +51,7 @@ public class Results {
         };
     }
 
-    public static Function<ResultSet, String> readString(String columnLabel) {
+    public static Function<ResultSet, String> stringFrom(String columnLabel) {
         return resultSet -> {
             try {
                 return resultSet.getString(columnLabel);

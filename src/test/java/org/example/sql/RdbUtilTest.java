@@ -14,7 +14,7 @@ class RdbUtilTest {
 
     @Test
     void selectOneConstant_returnsConstantValue() {
-        Optional<String> maybeResult = rdbUtil.selectOne("select 'value' as value", Results.readString("value"));
+        Optional<String> maybeResult = rdbUtil.selectOne("select 'value' as value", Results.stringFrom("value"));
 
         assertTrue(maybeResult.isPresent());
         assertEquals(maybeResult.get(), "value");

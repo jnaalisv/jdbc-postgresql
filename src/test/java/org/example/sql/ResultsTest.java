@@ -17,7 +17,7 @@ class ResultsTest {
     void getString_returnsStringByColumn(@Mock ResultSet resultSet) throws SQLException {
         String columnLabel = "columnA";
 
-        Results.readString(columnLabel).apply(resultSet);
+        Results.stringFrom(columnLabel).apply(resultSet);
 
         verify(resultSet).getString(columnLabel);
     }

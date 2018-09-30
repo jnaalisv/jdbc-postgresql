@@ -31,7 +31,7 @@ class JsonbTests {
 
         List<String> titles = sqlWizard
                 .select("select data ->> 'title' as title from books where ? = ?", booleanParam(true), booleanParam(true))
-                .asList(Results.readString("title"));
+                .asList(Results.stringFrom("title"));
 
         assertEquals(Arrays.asList(
                 "Sleeping Beauties",
@@ -61,7 +61,7 @@ class JsonbTests {
 
         var maybeTitle = sqlWizard
                 .select("select data ->> 'title' as title from books where data ->> 'title' = ?", stringParam(expectedTitle))
-                .as(Results.readString("title"));
+                .as(Results.stringFrom("title"));
 
         assertTrue(maybeTitle.isPresent());
         assertEquals(expectedTitle, maybeTitle.get());

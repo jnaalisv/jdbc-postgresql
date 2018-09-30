@@ -39,7 +39,7 @@ class DateTimeTests {
     void shouldReadIntoSimpleDTO() {
         givenOneRowInEventTable();
 
-        Optional<TimeDTO> maybeTs = rdbUtil.selectOne("select timestamp from event", TimeDTO::new, Results.readTimestamp("timestamp"));
+        Optional<TimeDTO> maybeTs = rdbUtil.selectOne("select timestamp from event", TimeDTO::new, Results.timeStampFrom("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -68,8 +68,8 @@ class DateTimeTests {
         Optional<Event> maybeTs = rdbUtil.selectOne(
                 "select description, timestamp from event",
                 Event::new,
-                Results.readString("description"),
-                Results.readTimestamp("timestamp")
+                Results.stringFrom("description"),
+                Results.timeStampFrom("timestamp")
         );
         assertTrue(maybeTs.isPresent());
     }
@@ -78,7 +78,7 @@ class DateTimeTests {
     void shouldReadOneRowFromTheDb() {
         givenOneRowInEventTable();
 
-        Optional<Timestamp> maybeTs = rdbUtil.selectOne("select timestamp from event", Results.readTimestamp("timestamp"));
+        Optional<Timestamp> maybeTs = rdbUtil.selectOne("select timestamp from event", Results.timeStampFrom("timestamp"));
         assertTrue(maybeTs.isPresent());
     }
 
@@ -86,7 +86,7 @@ class DateTimeTests {
     void shouldReadAListFromTheDb() {
         givenOneRowInEventTable();
 
-        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", Results.readTimestamp("timestamp"));
+        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
@@ -94,7 +94,7 @@ class DateTimeTests {
     void shouldReadAListOfEvents() {
         givenOneRowInEventTable();
 
-        List<Event> events = rdbUtil.selectList("select description, timestamp from event", Event::new, Results.readString("description"), Results.readTimestamp("timestamp"));
+        List<Event> events = rdbUtil.selectList("select description, timestamp from event", Event::new, Results.stringFrom("description"), Results.timeStampFrom("timestamp"));
         assertTrue(events.size() > 0);
     }
 
@@ -115,7 +115,7 @@ class DateTimeTests {
 
         Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
                 "select timestamp from event where description = 'Conference'",
-                Results.readTimestamp("timestamp")
+                Results.timeStampFrom("timestamp")
         );
         assertTrue(maybeEventTimestamp.isPresent());
         final Instant persistedEventInstant = maybeEventTimestamp.get().toInstant();
@@ -143,7 +143,7 @@ class DateTimeTests {
 
         Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
                 "select timestamp from event where description = 'Local Conference'",
-                Results.readTimestamp("timestamp")
+                Results.timeStampFrom("timestamp")
         );
         assertTrue(maybeEventTimestamp.isPresent());
         final Instant persistedInstant = maybeEventTimestamp.get().toInstant();
