@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.example.rdb.RdbUtil.booleanParam;
 import static org.example.rdb.RdbUtil.objectParam;
@@ -49,7 +48,7 @@ class JsonbTests {
 
         var books = sqlWizard
                 .select("select data from books where (data ->> 'published')::boolean = ?", booleanParam(true))
-                .asJsonToListOf( BookData.class);
+                .fromJsonColumnAsListOf( BookData.class);
 
         assertEquals(4, books.size());
     }
@@ -72,17 +71,15 @@ class JsonbTests {
     void oneJsonbRowCanBeDeserializedCompletely() {
         givenSomeTestData();
 
-        String expectedTitle = "Siddhartha";
+        var expectedTitle = "Siddhartha";
 
-        Optional<BookData> maybeSiddhartha = rdbUtil.selectOne(
-                "select data from books where data ->> 'title' = ?",
-                1,
-                BookData.class,
-                stringParam(expectedTitle));
+        var maybeSiddhartha = sqlWizard
+                .select("select data from books where data ->> 'title' = ?", stringParam(expectedTitle))
+                .fromJsonColumnAs(BookData.class);
 
         assertTrue(maybeSiddhartha.isPresent());
 
-        BookData siddhartha = maybeSiddhartha.get();
+        var siddhartha = maybeSiddhartha.get();
 
         assertEquals(expectedTitle, siddhartha.title);
         assertEquals(Arrays.asList(

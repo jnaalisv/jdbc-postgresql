@@ -43,11 +43,19 @@ public class SqlMagic {
         return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
     }
 
-    public <T> List<T> asJsonToListOf(Class<T> columnClassT) {
+    public <T> List<T> fromJsonColumnAsListOf(Class<T> columnClassT) {
         return rdbUtil.selectList(
                 query,
                 RdbUtil.readJsonAs(columnClassT),
                 preparedStatementConsumers
         );
+    }
+
+    public <T> Optional<T> fromJsonColumnAs(Class<T> jsonColumnType) {
+        return rdbUtil.selectOne(
+                query,
+                1,
+                jsonColumnType,
+                preparedStatementConsumers);
     }
 }
