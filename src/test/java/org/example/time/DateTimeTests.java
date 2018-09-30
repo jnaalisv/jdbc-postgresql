@@ -93,7 +93,11 @@ class DateTimeTests {
     void shouldReadAListOfEvents() {
         givenOneRowInEventTable();
 
-        List<Event> events = rdbUtil.selectList("select description, timestamp from event", Event::new, Results.stringFrom("description"), Results.timeStampFrom("timestamp"));
+        List<Event> events = rdbUtil
+                .selectList("select description, timestamp from event",
+                        Event::new,
+                        Results.stringFrom("description"),
+                        Results.timeStampFrom("timestamp"));
         assertTrue(events.size() > 0);
     }
 

@@ -119,6 +119,16 @@ public class RdbUtil {
     }
 
     @SafeVarargs
+    public final <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
+        return selectOne(query,
+                ctor,
+                rs -> mapA.apply(rs, 1),
+                rs -> mapB.apply(rs, 2),
+                preparedStatementConsumers
+        );
+    }
+
+    @SafeVarargs
     public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return jdbcUtil.executeUpdate(updateOrInsert, stmt -> {
             int paramIndex = 0;
@@ -135,12 +145,23 @@ public class RdbUtil {
         });
     }
 
-    public <T, A, B> List<T> selectList(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB) {
+    @SafeVarargs
+    public final <T, A, B> List<T> selectList(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return selectList(query, rs -> {
             A a = mapA.apply(rs);
             B b = mapB.apply(rs);
             return ctor.apply(a, b);
-        });
+        }, preparedStatementConsumers);
+    }
+
+    @SafeVarargs
+    public final <T, A, B> List<T> selectList(String query, BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return selectList(
+                query,
+                ctor,
+                rs -> mapA.apply(rs, 1),
+                rs -> mapB.apply(rs, 2),
+                preparedStatementConsumers);
     }
 
 }

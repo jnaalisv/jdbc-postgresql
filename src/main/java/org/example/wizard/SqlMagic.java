@@ -25,19 +25,11 @@ public class SqlMagic {
     }
 
     public <T> Optional<T> as(Function<ResultSet, T> rsMapper) {
-        return rdbUtil.selectOne(
-                query,
-                rsMapper,
-                preparedStatementConsumers
-        );
+        return rdbUtil.selectOne(query, rsMapper, preparedStatementConsumers);
     }
 
     public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
-        return as(rs -> {
-            A a = mapA.apply(rs, 1);
-            B b = mapB.apply(rs, 2);
-            return ctor.apply(a, b);
-        });
+        return rdbUtil.selectOne(query, ctor, mapA, mapB, preparedStatementConsumers);
     }
 
     public <T> List<T> asList(Function<ResultSet, T> rsMapper) {
@@ -45,11 +37,7 @@ public class SqlMagic {
     }
 
     public final <T, A, B> List<T> asList(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
-        return asList(rs -> {
-            A a = mapA.apply(rs, 1);
-            B b = mapB.apply(rs, 2);
-            return ctor.apply(a, b);
-        });
+        return rdbUtil.selectList(query, ctor, mapA, mapB, preparedStatementConsumers);
     }
 
     public <T> List<T> fromJsonColumnAsListOf(Class<T> columnClassT) {
