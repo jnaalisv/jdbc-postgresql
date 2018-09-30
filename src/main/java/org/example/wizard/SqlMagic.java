@@ -33,23 +33,23 @@ public class SqlMagic {
     }
 
     public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
-        return rdbUtil.selectOne(query, rs -> {
+        return as(rs -> {
             A a = mapA.apply(rs, 1);
             B b = mapB.apply(rs, 2);
             return ctor.apply(a, b);
-        }, preparedStatementConsumers);
-    }
-
-    public final <T, A, B> List<T> asList(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
-        return rdbUtil.selectList(query, rs -> {
-            A a = mapA.apply(rs, 1);
-            B b = mapB.apply(rs, 2);
-            return ctor.apply(a, b);
-        }, preparedStatementConsumers);
+        });
     }
 
     public <T> List<T> asList(Function<ResultSet, T> rsMapper) {
         return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
+    }
+
+    public final <T, A, B> List<T> asList(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
+        return asList(rs -> {
+            A a = mapA.apply(rs, 1);
+            B b = mapB.apply(rs, 2);
+            return ctor.apply(a, b);
+        });
     }
 
     public <T> List<T> fromJsonColumnAsListOf(Class<T> columnClassT) {
