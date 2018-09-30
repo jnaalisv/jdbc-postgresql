@@ -90,17 +90,6 @@ public class RdbUtil {
         );
     }
 
-    public static <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
-        return (resultSet, columnIndex) -> {
-            try {
-                final String columnValue = resultSet.getString(columnIndex);
-                return objectMapper.readValue(columnValue, columnClassT);
-            } catch (SQLException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-    
     @SafeVarargs
     public final <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
         return selectOne(query, resultSet -> {

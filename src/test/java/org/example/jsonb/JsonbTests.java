@@ -97,7 +97,7 @@ class JsonbTests {
                 .as(
                     BookEntity::new,
                     ResultSetUtil.readLong(),
-                    RdbUtil.readJsonAs( BookData.class)
+                    ResultSetUtil.readJsonAs(BookData.class)
                 );
 
         assertTrue(maybeSiddhartha.isPresent());
@@ -120,7 +120,7 @@ class JsonbTests {
                 .asList(
                         BookEntity::new,
                         ResultSetUtil.readLong(),
-                        RdbUtil.readJsonAs( BookData.class)
+                        ResultSetUtil.readJsonAs(BookData.class)
                 );
 
         assertEquals(5, books.size());
