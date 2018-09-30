@@ -47,7 +47,7 @@ public class SqlMagic {
 
         return rdbUtil.selectList(
                 query,
-                rdbUtil.readJsonToObject(1, columnClassT),
+                rdbUtil.readJsonAs(1, columnClassT),
                 preparedStatementConsumers
         );
     }

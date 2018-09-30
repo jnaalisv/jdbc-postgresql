@@ -74,7 +74,7 @@ public class RdbUtil {
     public final <T> List<T> selectList(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return selectList(
                 query,
-                readJsonToObject(columnIndex, columnClassT),
+                readJsonAs(columnIndex, columnClassT),
                 preparedStatementConsumers
         );
     }
@@ -89,7 +89,7 @@ public class RdbUtil {
         };
     }
 
-    public <T> BiFunction<ResultSet, Integer, T> readJsonToObject(Class<T> columnClassT) {
+    public <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
         return (resultSet, columnIndex) -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
@@ -100,7 +100,7 @@ public class RdbUtil {
         };
     }
 
-    public <T> Function<ResultSet, T> readJsonToObject(int columnIndex, Class<T> columnClassT) {
+    public <T> Function<ResultSet, T> readJsonAs(int columnIndex, Class<T> columnClassT) {
         return resultSet -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
