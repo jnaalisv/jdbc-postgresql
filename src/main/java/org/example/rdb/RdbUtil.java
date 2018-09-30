@@ -1,10 +1,7 @@
 package org.example.rdb;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.sql.JdbcUtil;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,23 +13,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class RdbUtil {
-    private static ObjectMapper objectMapper = buildDefaultOM();
-
-    private static ObjectMapper buildDefaultOM() {
-        ObjectMapper om = new ObjectMapper();
-        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        return om;
-    }
 
     private final JdbcUtil jdbcUtil;
 
     public RdbUtil(JdbcUtil jdbcUtil) {
         this.jdbcUtil = jdbcUtil;
-    }
-
-    public RdbUtil(JdbcUtil jdbcUtil, ObjectMapper om) {
-        this.jdbcUtil = jdbcUtil;
-        objectMapper = om;
     }
 
     @SafeVarargs
@@ -56,19 +41,6 @@ public class RdbUtil {
                 );
     }
 
-
-    @SafeVarargs
-    public final <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
-        return selectOne(query, resultSet -> {
-            try {
-                final String columnValue = resultSet.getString(columnIndex);
-                return objectMapper.readValue(columnValue, columnClassT);
-            } catch (IOException | SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }, preparedStatementConsumers);
-    }
-
     @SafeVarargs
     public final <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
         return selectOne(q, rs -> {
@@ -85,6 +57,16 @@ public class RdbUtil {
             return ctor.apply(a, b);
         }, preparedStatementConsumers);
     }
+
+    @SafeVarargs
+    public final <T> Optional<T> selectOne(String query, BiFunction<ResultSet, Integer, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return selectOne(
+                query,
+                resultSet -> rsMapper.apply(resultSet, 1),
+                preparedStatementConsumers
+        );
+    }
+
 
     @SafeVarargs
     public final <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
