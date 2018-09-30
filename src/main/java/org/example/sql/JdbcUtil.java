@@ -8,11 +8,11 @@ import java.sql.SQLException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SqlUtil {
+public class JdbcUtil {
 
     private final String connectionUrl;
 
-    public SqlUtil(String connectionUrl) {
+    public JdbcUtil(String connectionUrl) {
         this.connectionUrl = connectionUrl;
     }
 

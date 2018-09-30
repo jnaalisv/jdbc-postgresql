@@ -2,7 +2,7 @@ package org.example.rdb;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.sql.SqlUtil;
+import org.example.sql.JdbcUtil;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -24,20 +24,20 @@ public class RdbUtil {
         return om;
     }
 
-    private final SqlUtil sqlUtil;
+    private final JdbcUtil jdbcUtil;
 
-    public RdbUtil(SqlUtil sqlUtil) {
-        this.sqlUtil = sqlUtil;
+    public RdbUtil(JdbcUtil jdbcUtil) {
+        this.jdbcUtil = jdbcUtil;
     }
 
-    public RdbUtil(SqlUtil sqlUtil, ObjectMapper om) {
-        this.sqlUtil = sqlUtil;
+    public RdbUtil(JdbcUtil jdbcUtil, ObjectMapper om) {
+        this.jdbcUtil = jdbcUtil;
         objectMapper = om;
     }
 
     @SafeVarargs
     public final <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return sqlUtil.execQuery(
+        return jdbcUtil.execQuery(
                 query,
                 stmt -> {
                     int paramIndex = 0;
@@ -67,7 +67,7 @@ public class RdbUtil {
 
     @SafeVarargs
     public final <T> List<T> selectList(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return sqlUtil.execQuery(
+        return jdbcUtil.execQuery(
                 query,
                 stmt -> {
                     int paramIndex = 0;
@@ -120,7 +120,7 @@ public class RdbUtil {
 
     @SafeVarargs
     public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return sqlUtil.executeUpdate(updateOrInsert, stmt -> {
+        return jdbcUtil.executeUpdate(updateOrInsert, stmt -> {
             int paramIndex = 0;
             for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
                 consumer.accept(++paramIndex, stmt);
