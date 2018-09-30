@@ -99,16 +99,6 @@ public class RdbUtil {
         );
     }
 
-    public static BiFunction<ResultSet, Integer, Long> readLong() {
-        return (var resultSet, var columnIndex) -> {
-            try {
-                return resultSet.getLong(columnIndex);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
     public static <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
         return (resultSet, columnIndex) -> {
             try {

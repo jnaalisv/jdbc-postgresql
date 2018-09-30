@@ -96,7 +96,7 @@ class JsonbTests {
                 .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
                 .as(
                     BookEntity::new,
-                    RdbUtil.readLong(),
+                    ResultSetUtil.readLong(),
                     RdbUtil.readJsonAs( BookData.class)
                 );
 
