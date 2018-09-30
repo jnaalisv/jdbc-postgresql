@@ -2,6 +2,7 @@ package org.example.time;
 
 import org.example.AppContext;
 import org.example.rdb.RdbUtil;
+import org.example.sql.Params;
 import org.example.sql.Results;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.rdb.RdbUtil.stringParam;
-import static org.example.rdb.RdbUtil.timestampParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,8 +55,8 @@ class DateTimeTests {
 
     private void insertEvent(Event event) {
         rdbUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam(event.description),
-                timestampParam(event.timestamp)
+                Params.string(event.description),
+                Params.timestamp(event.timestamp)
         );
     }
 
@@ -108,8 +107,8 @@ class DateTimeTests {
         final Timestamp eventTimestamp = Timestamp.from(zonedDateTime.toInstant());
 
         int count = rdbUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam( "Conference"),
-                timestampParam( eventTimestamp)
+                Params.string( "Conference"),
+                Params.timestamp( eventTimestamp)
         );
         assertEquals(1, count);
 
@@ -136,8 +135,8 @@ class DateTimeTests {
         final Timestamp eventTimestamp = Timestamp.valueOf(localDateTime);
 
         int count = rdbUtil.updateOrInsert("insert into event values(?,?)",
-                stringParam( "Local Conference"),
-                timestampParam( eventTimestamp)
+                Params.string( "Local Conference"),
+                Params.timestamp( eventTimestamp)
         );
         assertEquals(1, count);
 

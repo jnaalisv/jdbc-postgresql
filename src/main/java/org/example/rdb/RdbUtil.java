@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -158,43 +157,4 @@ public class RdbUtil {
         });
     }
 
-    public static BiConsumer<Integer, PreparedStatement> stringParam(String string) {
-        return (index, preparedStatement) -> {
-            try {
-                preparedStatement.setString(index, string);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static BiConsumer<Integer, PreparedStatement> timestampParam(Timestamp timestamp) {
-        return (index, preparedStatement) -> {
-            try {
-                preparedStatement.setTimestamp(index, timestamp);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static BiConsumer<Integer, PreparedStatement> objectParam(Object object) {
-        return (index, preparedStatement) -> {
-            try {
-                preparedStatement.setObject(index, object);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    public static BiConsumer<Integer, PreparedStatement> booleanParam(boolean bool) {
-        return (index, preparedStatement) -> {
-            try {
-                preparedStatement.setBoolean(index, bool);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
 }
