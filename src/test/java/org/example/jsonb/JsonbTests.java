@@ -103,7 +103,7 @@ class JsonbTests {
                 .as(
                     BookEntity::new,
                     RdbUtil.readLong(),
-                    rdbUtil.readJsonToObject(2, BookData.class)
+                    rdbUtil.readJsonToObject( BookData.class)
                 );
 
         assertTrue(maybeSiddhartha.isPresent());

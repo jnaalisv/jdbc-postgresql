@@ -89,6 +89,17 @@ public class RdbUtil {
         };
     }
 
+    public <T> BiFunction<ResultSet, Integer, T> readJsonToObject(Class<T> columnClassT) {
+        return (resultSet, columnIndex) -> {
+            try {
+                final String columnValue = resultSet.getString(columnIndex);
+                return objectMapper.readValue(columnValue, columnClassT);
+            } catch (SQLException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public <T> Function<ResultSet, T> readJsonToObject(int columnIndex, Class<T> columnClassT) {
         return resultSet -> {
             try {
