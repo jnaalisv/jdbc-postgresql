@@ -58,7 +58,16 @@ public class RdbUtil {
     }
 
     @SafeVarargs
-    public final <T> List<T> selectList(final String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+    public final <T> List<T> selectList(String query, BiFunction<ResultSet, Integer, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return selectList(
+                query,
+                resultSet -> rsMapper.apply(resultSet, 1),
+                preparedStatementConsumers
+        );
+    }
+
+    @SafeVarargs
+    public final <T> List<T> selectList(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
         return sqlUtil.execQuery(
                 query,
                 stmt -> {

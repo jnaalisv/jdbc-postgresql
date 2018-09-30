@@ -40,14 +40,10 @@ public class SqlMagic {
         return rdbUtil.selectList(query, rsMapper, preparedStatementConsumers);
     }
 
-    /**
-     *
-     * */
     public <T> List<T> asList(Class<T> columnClassT) {
-
         return rdbUtil.selectList(
                 query,
-                rdbUtil.readJsonAs(1, columnClassT),
+                RdbUtil.readJsonAs(columnClassT),
                 preparedStatementConsumers
         );
     }
