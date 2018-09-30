@@ -1,5 +1,6 @@
 package org.example.rdb;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.sql.SqlUtil;
 
@@ -16,13 +17,23 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class RdbUtil {
+    private static ObjectMapper objectMapper = buildDefaultOM();
 
-    private final ObjectMapper objectMapper;
+    private static ObjectMapper buildDefaultOM() {
+        ObjectMapper om = new ObjectMapper();
+        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        return om;
+    }
+
     private final SqlUtil sqlUtil;
 
-    public RdbUtil(SqlUtil sqlUtil, ObjectMapper objectMapper) {
+    public RdbUtil(SqlUtil sqlUtil) {
         this.sqlUtil = sqlUtil;
-        this.objectMapper = objectMapper;
+    }
+
+    public RdbUtil(SqlUtil sqlUtil, ObjectMapper om) {
+        this.sqlUtil = sqlUtil;
+        objectMapper = om;
     }
 
     @SafeVarargs
@@ -89,7 +100,7 @@ public class RdbUtil {
         };
     }
 
-    public <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
+    public static <T> BiFunction<ResultSet, Integer, T> readJsonAs(Class<T> columnClassT) {
         return (resultSet, columnIndex) -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
@@ -100,7 +111,7 @@ public class RdbUtil {
         };
     }
 
-    public <T> Function<ResultSet, T> readJsonAs(int columnIndex, Class<T> columnClassT) {
+    public static <T> Function<ResultSet, T> readJsonAs(int columnIndex, Class<T> columnClassT) {
         return resultSet -> {
             try {
                 final String columnValue = resultSet.getString(columnIndex);
