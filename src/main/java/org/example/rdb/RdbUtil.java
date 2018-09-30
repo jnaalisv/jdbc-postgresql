@@ -56,38 +56,6 @@ public class RdbUtil {
                 );
     }
 
-    @SafeVarargs
-    public final <T> List<T> selectList(String query, BiFunction<ResultSet, Integer, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return selectList(
-                query,
-                resultSet -> rsMapper.apply(resultSet, 1),
-                preparedStatementConsumers
-        );
-    }
-
-    @SafeVarargs
-    public final <T> List<T> selectList(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return jdbcUtil.execQuery(
-                query,
-                stmt -> {
-                    int paramIndex = 0;
-                    for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
-                        consumer.accept(++paramIndex, stmt);
-                    }
-                },
-                resultSet -> {
-                    final List<T> resultList = new ArrayList<>();
-                    try {
-                        while (resultSet.next()) {
-                            resultList.add(rsMapper.apply(resultSet));
-                        }
-                        return resultList;
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
-    }
 
     @SafeVarargs
     public final <T> Optional<T> selectOne(String query, int columnIndex, Class<T> columnClassT, BiConsumer<Integer, PreparedStatement>... preparedStatementConsumers) {
@@ -129,13 +97,36 @@ public class RdbUtil {
     }
 
     @SafeVarargs
-    public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
-        return jdbcUtil.executeUpdate(updateOrInsert, stmt -> {
-            int paramIndex = 0;
-            for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
-                consumer.accept(++paramIndex, stmt);
-            }
-        });
+    public final <T> List<T> selectList(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return jdbcUtil.execQuery(
+                query,
+                stmt -> {
+                    int paramIndex = 0;
+                    for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                        consumer.accept(++paramIndex, stmt);
+                    }
+                },
+                resultSet -> {
+                    final List<T> resultList = new ArrayList<>();
+                    try {
+                        while (resultSet.next()) {
+                            resultList.add(rsMapper.apply(resultSet));
+                        }
+                        return resultList;
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+    }
+
+    @SafeVarargs
+    public final <T> List<T> selectList(String query, BiFunction<ResultSet, Integer, T> rsMapper, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return selectList(
+                query,
+                resultSet -> rsMapper.apply(resultSet, 1),
+                preparedStatementConsumers
+        );
     }
 
     public <T, A> List<T> selectList(String query, Function<A, T> ctor, Function<ResultSet, A> mapA) {
@@ -164,4 +155,13 @@ public class RdbUtil {
                 preparedStatementConsumers);
     }
 
+    @SafeVarargs
+    public final int updateOrInsert(String updateOrInsert, BiConsumer<Integer, PreparedStatement>...preparedStatementConsumers) {
+        return jdbcUtil.executeUpdate(updateOrInsert, stmt -> {
+            int paramIndex = 0;
+            for (BiConsumer<Integer, PreparedStatement> consumer : preparedStatementConsumers) {
+                consumer.accept(++paramIndex, stmt);
+            }
+        });
+    }
 }
