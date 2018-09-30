@@ -111,6 +111,21 @@ class JsonbTests {
         assertTrue(siddhartha.getBookData().published);
     }
 
+    @Test
+    void readAListOfEntities() {
+        givenSomeTestData();
+
+        var books = sqlWizard
+                .select("select id, data from books")
+                .asList(
+                        BookEntity::new,
+                        ResultSetUtil.readLong(),
+                        RdbUtil.readJsonAs( BookData.class)
+                );
+
+        assertEquals(5, books.size());
+    }
+
     private void givenSomeTestData() {
         rdbUtil.updateOrInsert(
                 "insert into books values" +
