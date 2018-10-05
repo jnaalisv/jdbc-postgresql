@@ -4,8 +4,6 @@ import org.example.AppContext;
 import org.example.rdb.RdbUtil;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,7 +12,7 @@ class RdbUtilTest {
 
     @Test
     void selectConstant_returnsConstantValue() {
-        List<String> results = rdbUtil.selectList("select 'value' as value", Results.stringFrom("value"));
+        var results = rdbUtil.selectList("select 'value' as value", Results.stringFrom("value"));
 
         assertTrue(results.size() > 0);
         assertEquals(results.get(0), "value");

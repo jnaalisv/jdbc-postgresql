@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +26,7 @@ class JsonbTests {
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
 
-        List<String> titles = sqlWizard
+        var titles = sqlWizard
                 .select("select data ->> 'title' as title from books where ? = ?", Params.booleanTrue(), Params.booleanTrue())
                 .asList(Results.stringFrom("title"));
 
@@ -55,7 +54,7 @@ class JsonbTests {
     void selectWithParameters() {
         givenSomeTestData();
 
-        String expectedTitle = "Siddhartha";
+        var expectedTitle = "Siddhartha";
 
         var maybeTitle = sqlWizard
                 .select("select data ->> 'title' as title from books where data ->> 'title' = ?", Params.string(expectedTitle))

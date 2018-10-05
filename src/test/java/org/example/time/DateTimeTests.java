@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,7 +36,7 @@ class DateTimeTests {
     void shouldReadIntoSimpleDTO() {
         givenOneRowInEventTable();
 
-        List<TimeDTO> times = rdbUtil.selectList("select timestamp from event", TimeDTO::new, Results.timeStampFrom("timestamp"));
+        var times = rdbUtil.selectList("select timestamp from event", TimeDTO::new, Results.timeStampFrom("timestamp"));
         assertEquals(1, times.size());
     }
 
@@ -63,7 +62,7 @@ class DateTimeTests {
     void shouldReadIntoEvent() {
         givenOneRowInEventTable();
 
-        List<Event> events = rdbUtil.selectList(
+        var events = rdbUtil.selectList(
                 "select description, timestamp from event",
                 Event::new,
                 Results.stringFrom("description"),
@@ -76,7 +75,7 @@ class DateTimeTests {
     void shouldReadOneRowFromTheDb() {
         givenOneRowInEventTable();
 
-        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
+        var timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
         assertEquals(1, timestamps.size());
     }
 
@@ -84,7 +83,7 @@ class DateTimeTests {
     void shouldReadAListFromTheDb() {
         givenOneRowInEventTable();
 
-        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
+        var timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
         assertTrue(timestamps.size() > 0);
     }
 
@@ -92,7 +91,7 @@ class DateTimeTests {
     void shouldReadAListOfEvents() {
         givenOneRowInEventTable();
 
-        List<Event> events = rdbUtil
+        var events = rdbUtil
                 .selectList("select description, timestamp from event",
                         Event::new,
                         Results.stringFrom("description"),
@@ -115,7 +114,7 @@ class DateTimeTests {
         );
         assertEquals(1, count);
 
-        List<Timestamp> timestamps = rdbUtil.selectList(
+        var timestamps = rdbUtil.selectList(
                 "select timestamp from event where description = 'Conference'",
                 Results.timeStampFrom("timestamp")
         );
@@ -143,7 +142,7 @@ class DateTimeTests {
         );
         assertEquals(1, count);
 
-        List<Timestamp> timestamps = rdbUtil.selectList(
+        var timestamps = rdbUtil.selectList(
                 "select timestamp from event where description = 'Local Conference'",
                 Results.timeStampFrom("timestamp")
         );

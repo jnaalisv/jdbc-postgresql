@@ -15,7 +15,7 @@ class ResultsTest {
 
     @Test
     void getString_returnsStringByColumn(@Mock ResultSet resultSet) throws SQLException {
-        String columnLabel = "columnA";
+        var columnLabel = "columnA";
 
         Results.stringFrom(columnLabel).apply(resultSet);
 
