@@ -5,7 +5,6 @@ import org.example.rdb.RdbUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -21,18 +20,6 @@ public class SqlMagic {
         this.rdbUtil = rdbUtil;
         this.query = query;
         this.sqlParameters = sqlParameters;
-    }
-
-    public <T> Optional<T> as(Function<ResultSet, T> rsMapper) {
-        return rdbUtil.selectOne(query, rsMapper, sqlParameters);
-    }
-
-    public <T> Optional<T> as(BiFunction<ResultSet, Integer, T> rsMapper) {
-        return rdbUtil.selectOne(query, rsMapper, sqlParameters);
-    }
-
-    public final <T, A, B> Optional<T> as(BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB) {
-        return rdbUtil.selectOne(query, ctor, mapA, mapB, sqlParameters);
     }
 
     public <T> List<T> asList(Function<ResultSet, T> rsMapper) {

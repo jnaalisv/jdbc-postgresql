@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -18,64 +17,6 @@ public class RdbUtil {
 
     public RdbUtil(JdbcUtil jdbcUtil) {
         this.jdbcUtil = jdbcUtil;
-    }
-
-    @SafeVarargs
-    public final <T> Optional<T> selectOne(String query, Function<ResultSet, T> rsMapper, BiConsumer<Integer, PreparedStatement>...sqlParameters) {
-        return jdbcUtil.execQuery(
-                query,
-                stmt -> {
-                    int paramIndex = 0;
-                    for (BiConsumer<Integer, PreparedStatement> sqlParam : sqlParameters) {
-                        sqlParam.accept(++paramIndex, stmt);
-                    }
-                },
-                resultSet -> {
-                    try {
-                        final T returnValue = resultSet.next() ? rsMapper.apply(resultSet) : null;
-                        return Optional.ofNullable(returnValue);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                );
-    }
-
-    @SafeVarargs
-    public final <T, A> Optional<T> selectOne(String q, Function<A, T> ctor, Function<ResultSet, A> mapA, BiConsumer<Integer, PreparedStatement>... sqlParameters) {
-        return selectOne(q, resultSet -> {
-            A a = mapA.apply(resultSet);
-            return ctor.apply(a);
-        }, sqlParameters);
-    }
-
-    @SafeVarargs
-    public final <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, Function<ResultSet, A> mapA, Function<ResultSet, B> mapB, BiConsumer<Integer, PreparedStatement>... sqlParameters) {
-        return selectOne(query, resultSet -> {
-            A a = mapA.apply(resultSet);
-            B b = mapB.apply(resultSet);
-            return ctor.apply(a, b);
-        }, sqlParameters);
-    }
-
-    @SafeVarargs
-    public final <T> Optional<T> selectOne(String query, BiFunction<ResultSet, Integer, T> rsMapper, BiConsumer<Integer, PreparedStatement>...sqlParameters) {
-        return selectOne(
-                query,
-                resultSet -> rsMapper.apply(resultSet, 1),
-                sqlParameters
-        );
-    }
-
-
-    @SafeVarargs
-    public final <T, A, B> Optional<T> selectOne(String query, BiFunction<A, B, T> ctor, BiFunction<ResultSet, Integer, A> mapA, BiFunction<ResultSet, Integer, B> mapB, BiConsumer<Integer, PreparedStatement>... sqlParameters) {
-        return selectOne(query,
-                ctor,
-                resultSet -> mapA.apply(resultSet, 1),
-                resultSet -> mapB.apply(resultSet, 2),
-                sqlParameters
-        );
     }
 
     @SafeVarargs
@@ -109,6 +50,14 @@ public class RdbUtil {
                 resultSet -> rsMapper.apply(resultSet, 1),
                 sqlParameters
         );
+    }
+
+    @SafeVarargs
+    public final <T, A> List<T> selectList(String query, Function<A, T> ctor, Function<ResultSet, A> mapA, BiConsumer<Integer, PreparedStatement>...sqlParameters) {
+        return selectList(query, resultSet -> {
+            A a = mapA.apply(resultSet);
+            return ctor.apply(a);
+        }, sqlParameters);
     }
 
     @SafeVarargs

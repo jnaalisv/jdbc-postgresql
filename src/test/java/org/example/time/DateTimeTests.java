@@ -15,7 +15,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,8 +37,8 @@ class DateTimeTests {
     void shouldReadIntoSimpleDTO() {
         givenOneRowInEventTable();
 
-        Optional<TimeDTO> maybeTs = rdbUtil.selectOne("select timestamp from event", TimeDTO::new, Results.timeStampFrom("timestamp"));
-        assertTrue(maybeTs.isPresent());
+        List<TimeDTO> times = rdbUtil.selectList("select timestamp from event", TimeDTO::new, Results.timeStampFrom("timestamp"));
+        assertEquals(1, times.size());
     }
 
     private void givenOneRowInEventTable() {
@@ -64,21 +63,21 @@ class DateTimeTests {
     void shouldReadIntoEvent() {
         givenOneRowInEventTable();
 
-        Optional<Event> maybeTs = rdbUtil.selectOne(
+        List<Event> events = rdbUtil.selectList(
                 "select description, timestamp from event",
                 Event::new,
                 Results.stringFrom("description"),
                 Results.timeStampFrom("timestamp")
         );
-        assertTrue(maybeTs.isPresent());
+        assertEquals(1, events.size());
     }
 
     @Test
     void shouldReadOneRowFromTheDb() {
         givenOneRowInEventTable();
 
-        Optional<Timestamp> maybeTs = rdbUtil.selectOne("select timestamp from event", Results.timeStampFrom("timestamp"));
-        assertTrue(maybeTs.isPresent());
+        List<Timestamp> timestamps = rdbUtil.selectList("select timestamp from event", Results.timeStampFrom("timestamp"));
+        assertEquals(1, timestamps.size());
     }
 
     @Test
@@ -116,12 +115,12 @@ class DateTimeTests {
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
+        List<Timestamp> timestamps = rdbUtil.selectList(
                 "select timestamp from event where description = 'Conference'",
                 Results.timeStampFrom("timestamp")
         );
-        assertTrue(maybeEventTimestamp.isPresent());
-        final Instant persistedEventInstant = maybeEventTimestamp.get().toInstant();
+        assertTrue(timestamps.size() > 0);
+        final Instant persistedEventInstant = timestamps.get(0).toInstant();
 
         ZonedDateTime eventDateTimeUTC = ZonedDateTime.ofInstant(persistedEventInstant, UTC);
         ZonedDateTime eventDateTimeStockholm = ZonedDateTime.ofInstant(persistedEventInstant, EU_STOCKHOLM);
@@ -144,12 +143,12 @@ class DateTimeTests {
         );
         assertEquals(1, count);
 
-        Optional<Timestamp> maybeEventTimestamp = rdbUtil.selectOne(
+        List<Timestamp> timestamps = rdbUtil.selectList(
                 "select timestamp from event where description = 'Local Conference'",
                 Results.timeStampFrom("timestamp")
         );
-        assertTrue(maybeEventTimestamp.isPresent());
-        final Instant persistedInstant = maybeEventTimestamp.get().toInstant();
+        assertTrue(timestamps.size() > 0);
+        final Instant persistedInstant = timestamps.get(0).toInstant();
 
         final ZonedDateTime persistedUtcDateTime = ZonedDateTime.ofInstant(persistedInstant, UTC);
         final ZonedDateTime helsinkiDateTime = ZonedDateTime.of(localDateTime, EU_HELSINKI);

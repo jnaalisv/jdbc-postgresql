@@ -4,7 +4,7 @@ import org.example.AppContext;
 import org.example.rdb.RdbUtil;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,10 +13,10 @@ class RdbUtilTest {
     private static final RdbUtil rdbUtil = AppContext.rdbUtil;
 
     @Test
-    void selectOneConstant_returnsConstantValue() {
-        Optional<String> maybeResult = rdbUtil.selectOne("select 'value' as value", Results.stringFrom("value"));
+    void selectConstant_returnsConstantValue() {
+        List<String> results = rdbUtil.selectList("select 'value' as value", Results.stringFrom("value"));
 
-        assertTrue(maybeResult.isPresent());
-        assertEquals(maybeResult.get(), "value");
+        assertTrue(results.size() > 0);
+        assertEquals(results.get(0), "value");
     }
 }

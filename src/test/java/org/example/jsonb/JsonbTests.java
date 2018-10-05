@@ -59,10 +59,10 @@ class JsonbTests {
 
         var maybeTitle = sqlWizard
                 .select("select data ->> 'title' as title from books where data ->> 'title' = ?", Params.string(expectedTitle))
-                .as(Results.stringFrom("title"));
+                .asList(Results.stringFrom("title"));
 
-        assertTrue(maybeTitle.isPresent());
-        assertEquals(expectedTitle, maybeTitle.get());
+        assertTrue(maybeTitle.size() > 0);
+        assertEquals(expectedTitle, maybeTitle.get(0));
     }
 
     @Test
@@ -73,11 +73,11 @@ class JsonbTests {
 
         var maybeSiddhartha = sqlWizard
                 .select("select data from books where data ->> 'title' = ?", Params.string(expectedTitle))
-                .as(Results.jsonValueAs(BookData.class));
+                .asList(Results.jsonValueAs(BookData.class));
 
-        assertTrue(maybeSiddhartha.isPresent());
+        assertTrue(maybeSiddhartha.size() > 0);
 
-        var siddhartha = maybeSiddhartha.get();
+        var siddhartha = maybeSiddhartha.get(0);
 
         assertEquals(expectedTitle, siddhartha.title);
         assertEquals(Arrays.asList(
@@ -92,15 +92,15 @@ class JsonbTests {
 
         var maybeSiddhartha = sqlWizard
                 .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
-                .as(
+                .asList(
                     BookEntity::new,
                     Results.longValue(),
                     Results.jsonValueAs(BookData.class)
                 );
 
-        assertTrue(maybeSiddhartha.isPresent());
+        assertTrue(maybeSiddhartha.size()  > 0);
 
-        var siddhartha = maybeSiddhartha.get();
+        var siddhartha = maybeSiddhartha.get(0);
 
         assertEquals("Siddhartha", siddhartha.getBookData().title);
         assertEquals(Arrays.asList(
