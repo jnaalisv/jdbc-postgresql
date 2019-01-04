@@ -16,14 +16,12 @@ ext["mockitoVersion"] = "2.23.4"
 ext["jacksonVersion"] = "2.9.7"
 
 dependencies {
-    compile ("org.postgresql:postgresql:$postgreSqlVersion")
-    compile ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation ("org.postgresql:postgresql:$postgreSqlVersion")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 
-    testCompile ("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile ("org.mockito:mockito-core:$mockitoVersion")
-    testCompile ("org.mockito:mockito-junit-jupiter:$mockitoVersion")
-
-    testRuntime ("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter:$junitVersion")
+    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation ("org.mockito:mockito-junit-jupiter:$mockitoVersion")
 }
 
 test {
