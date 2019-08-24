@@ -121,6 +121,13 @@ class JsonbTests {
                 );
 
         assertEquals(5, books.size());
+        BookData firstBook = books.get(0).getBookData();
+        assertEquals(firstBook.title, "Sleeping Beauties");
+        assertEquals(firstBook.genres, Arrays.asList("Fiction", "Thriller", "Horror"));
+
+        BookData lastBook = books.get(4).getBookData();
+        assertEquals(lastBook.title, "Siddhartha");
+        assertEquals(lastBook.genres, Arrays.asList("Fiction", "Spirituality"));
     }
 
     private void givenSomeTestData() {
