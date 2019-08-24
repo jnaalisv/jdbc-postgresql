@@ -78,11 +78,11 @@ class JsonbTests {
 
         var siddhartha = maybeSiddhartha.get(0);
 
-        assertEquals(expectedTitle, siddhartha.title);
+        assertEquals(expectedTitle, siddhartha.title());
         assertEquals(Arrays.asList(
                 "Fiction", "Spirituality"
-        ), siddhartha.genres);
-        assertTrue(siddhartha.published);
+        ), siddhartha.genres());
+        assertTrue(siddhartha.published());
     }
 
     @Test
@@ -101,11 +101,11 @@ class JsonbTests {
 
         var siddhartha = maybeSiddhartha.get(0);
 
-        assertEquals("Siddhartha", siddhartha.getBookData().title);
+        assertEquals("Siddhartha", siddhartha.getBookData().title());
         assertEquals(Arrays.asList(
                 "Fiction", "Spirituality"
-        ), siddhartha.getBookData().genres);
-        assertTrue(siddhartha.getBookData().published);
+        ), siddhartha.getBookData().genres());
+        assertTrue(siddhartha.getBookData().published());
     }
 
     @Test
@@ -122,12 +122,12 @@ class JsonbTests {
 
         assertEquals(5, books.size());
         BookData firstBook = books.get(0).getBookData();
-        assertEquals(firstBook.title, "Sleeping Beauties");
-        assertEquals(firstBook.genres, Arrays.asList("Fiction", "Thriller", "Horror"));
+        assertEquals(firstBook.title(), "Sleeping Beauties");
+        assertEquals(firstBook.genres(), Arrays.asList("Fiction", "Thriller", "Horror"));
 
         BookData lastBook = books.get(4).getBookData();
-        assertEquals(lastBook.title, "Siddhartha");
-        assertEquals(lastBook.genres, Arrays.asList("Fiction", "Spirituality"));
+        assertEquals(lastBook.title(), "Siddhartha");
+        assertEquals(lastBook.genres(), Arrays.asList("Fiction", "Spirituality"));
     }
 
     private void givenSomeTestData() {
