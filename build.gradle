@@ -10,14 +10,19 @@ repositories {
     jcenter()
 }
 
-ext["postgreSqlVersion"] = "42.2.6"
-ext["junitVersion"] = "5.5.1"
+ext["postgreSqlVersion"] = "42.2.8"
+ext["junitVersion"] = "5.5.2"
 ext["mockitoVersion"] = "2.23.4"
-ext["jacksonVersion"] = "2.9.7"
+ext["jacksonVersion"] = "2.9.9"
+ext["log4j2Version"] = "2.11.1"
 
 dependencies {
+    implementation ("org.apache.logging.log4j:log4j-api:$log4j2Version")
     implementation ("org.postgresql:postgresql:$postgreSqlVersion")
     implementation ("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+
+    runtimeOnly ("org.apache.logging.log4j:log4j-core:$log4j2Version")
+    runtimeOnly ("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
 
     testImplementation ("org.junit.jupiter:junit-jupiter:$junitVersion")
     testImplementation ("org.mockito:mockito-core:$mockitoVersion")
