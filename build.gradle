@@ -14,7 +14,7 @@ ext["postgreSqlVersion"] = "42.2.8"
 ext["junitVersion"] = "5.5.2"
 ext["mockitoVersion"] = "2.23.4"
 ext["jacksonVersion"] = "2.9.9"
-ext["log4j2Version"] = "2.11.1"
+ext["log4j2Version"] = "2.12.1"
 
 dependencies {
     implementation ("org.apache.logging.log4j:log4j-api:$log4j2Version")
