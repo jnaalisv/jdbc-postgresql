@@ -1,8 +1,6 @@
 package org.example.jsonb;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.beans.ConstructorProperties;
 import java.util.List;
 
 public class BookData {
@@ -11,6 +9,7 @@ public class BookData {
     private final List<String> genres;
     private final Boolean published;
 
+    @ConstructorProperties({"title", "genres", "published"})
     public BookData(String title, List<String> genres, Boolean published) {
         this.title = title;
         this.genres = genres;
@@ -29,12 +28,4 @@ public class BookData {
         return published;
     }
 
-    @JsonCreator
-    public static BookData deserializeFromJSON(
-            @JsonProperty("title") String title,
-            @JsonProperty("genres") List<String> genres,
-            @JsonProperty("published") Boolean published
-    ) {
-        return new BookData(title, genres, published);
-    }
 }
