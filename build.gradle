@@ -11,7 +11,7 @@ repositories {
 }
 
 ext["postgreSqlVersion"] = "42.2.9"
-ext["junitVersion"] = "5.5.2"
+ext["junitVersion"] = "5.6.0"
 ext["mockitoVersion"] = "2.23.4"
 ext["jacksonVersion"] = "2.10.1"
 ext["log4j2Version"] = "2.12.1"
