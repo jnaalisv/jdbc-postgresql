@@ -10,10 +10,10 @@ repositories {
     jcenter()
 }
 
-ext["postgreSqlVersion"] = "42.2.9"
-ext["junitVersion"] = "5.6.0"
-ext["mockitoVersion"] = "2.23.4"
-ext["jacksonVersion"] = "2.10.1"
+ext["postgreSqlVersion"] = "42.2.11"
+ext["junitVersion"] = "5.6.1"
+ext["mockitoVersion"] = "3.1.0"
+ext["jacksonVersion"] = "2.10.3"
 ext["log4j2Version"] = "2.12.1"
 
 dependencies {
