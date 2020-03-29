@@ -32,3 +32,15 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.fork = true
+    options.deprecation = true
+    options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation", "--enable-preview", "-Xlint:preview"]
+}
+
+tasks.withType(Test) {
+    jvmArgs += ["--enable-preview"]
+}
+

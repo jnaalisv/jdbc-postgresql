@@ -142,8 +142,13 @@ class DateTimeTests {
         );
         assertEquals(1, count);
 
+        var selectSQL = """
+                select timestamp 
+                from event 
+                where description = 'Local Conference'
+                """;
         var timestamps = rdbUtil.selectList(
-                "select timestamp from event where description = 'Local Conference'",
+                selectSQL,
                 Results.timeStampFrom("timestamp")
         );
         assertTrue(timestamps.size() > 0);

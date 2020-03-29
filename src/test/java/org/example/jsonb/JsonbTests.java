@@ -26,8 +26,13 @@ class JsonbTests {
     void shouldSelectAlistOfTitles() {
         givenSomeTestData();
 
+        var selectSQL = """
+                select data ->> 'title' as title 
+                from books 
+                where ? = ?
+                """;
         var titles = sqlWizard
-                .select("select data ->> 'title' as title from books where ? = ?", Params.booleanTrue(), Params.booleanTrue())
+                .select(selectSQL, Params.booleanTrue(), Params.booleanTrue())
                 .asList(Results.stringFrom("title"));
 
         assertEquals(Arrays.asList(
@@ -43,8 +48,14 @@ class JsonbTests {
     void jsonbCanBeDeserializedIntoAnObject() {
         givenSomeTestData();
 
+        var selectSQL = """
+                select data 
+                from books 
+                where (data ->> 'published')::boolean = ?
+                """;
+
         var books = sqlWizard
-                .select("select data from books where (data ->> 'published')::boolean = ?", Params.booleanTrue())
+                .select(selectSQL, Params.booleanTrue())
                 .asList(Results.jsonValueAs(BookData.class));
 
         assertEquals(4, books.size());
@@ -53,15 +64,19 @@ class JsonbTests {
     @Test
     void selectWithParameters() {
         givenSomeTestData();
-
         var expectedTitle = "Siddhartha";
 
-        var maybeTitle = sqlWizard
-                .select("select data ->> 'title' as title from books where data ->> 'title' = ?", Params.string(expectedTitle))
+        var selectSQL = """
+                select data ->> 'title' as title 
+                from books 
+                where data ->> 'title' = ?
+                """;
+        var selectedTitles = sqlWizard
+                .select(selectSQL, Params.string(expectedTitle))
                 .asList(Results.stringFrom("title"));
 
-        assertTrue(maybeTitle.size() > 0);
-        assertEquals(expectedTitle, maybeTitle.get(0));
+        assertTrue(selectedTitles.size() > 0);
+        assertEquals(expectedTitle, selectedTitles.get(0));
     }
 
     @Test
@@ -70,8 +85,13 @@ class JsonbTests {
 
         var expectedTitle = "Siddhartha";
 
+        var selectSQL = """
+                select data 
+                from books 
+                where data ->> 'title' = ?
+                """;
         var maybeSiddhartha = sqlWizard
-                .select("select data from books where data ->> 'title' = ?", Params.string(expectedTitle))
+                .select(selectSQL, Params.string(expectedTitle))
                 .asList(Results.jsonValueAs(BookData.class));
 
         assertTrue(maybeSiddhartha.size() > 0);
@@ -89,8 +109,13 @@ class JsonbTests {
     void letsReadToAnEntity() {
         givenSomeTestData();
 
+        var selectSQL = """
+                select id, data 
+                from books 
+                where data ->> 'title' = 'Siddhartha'
+                """;
         var maybeSiddhartha = sqlWizard
-                .select("select id, data from books where data ->> 'title' = 'Siddhartha'")
+                .select(selectSQL)
                 .asList(
                     BookEntity::new,
                     Results.longValue(),
@@ -131,18 +156,57 @@ class JsonbTests {
     }
 
     private void givenSomeTestData() {
+        var insertBooksSQL = """
+        insert into books
+        values
+            (nextval('serial'), ?::jsonb),
+            (nextval('serial'), ?::jsonb),
+            (nextval('serial'), ?::jsonb),
+            (nextval('serial'), ?::jsonb),
+            (nextval('serial'), ?::jsonb)
+        """;
         rdbUtil.updateOrInsert(
-                "insert into books values" +
-                        "(nextval('serial'), ?::jsonb), " +
-                        "(nextval('serial'), ?::jsonb), " +
-                        "(nextval('serial'), ?::jsonb), " +
-                        "(nextval('serial'), ?::jsonb), " +
-                        "(nextval('serial'), ?::jsonb)",
-                Params.object("{\"title\": \"Sleeping Beauties\", \"genres\": [\"Fiction\", \"Thriller\", \"Horror\"], \"published\": false}"),
-                Params.object("{\"title\": \"Influence\", \"genres\": [\"Marketing & Sales\", \"Self-Help \", \"Psychology\"], \"published\": true}"),
-                Params.object("{\"title\": \"The Dictator's Handbook\", \"genres\": [\"Law\", \"Politics\"], \"authors\": [\"Bruce Bueno de Mesquita\", \"Alastair Smith\"], \"published\": true}"),
-                Params.object("{\"title\": \"Deep Work\", \"genres\": [\"Productivity\", \"Reference\"], \"published\": true}"),
-                Params.object("{\"title\": \"Siddhartha\", \"genres\": [\"Fiction\", \"Spirituality\"], \"published\": true}")
+                insertBooksSQL,
+                Params.object(
+                        """
+                        {
+                            "title": "Sleeping Beauties", 
+                            "genres": ["Fiction", "Thriller", "Horror"], 
+                            "published": false
+                        }
+                        """),
+                Params.object(
+                        """
+                        {
+                            "title": "Influence", 
+                            "genres": ["Marketing & Sales", "Self-Help ", "Psychology"], 
+                            "published": true
+                        }
+                        """),
+                Params.object(
+                        """
+                        {
+                            "title": "The Dictator's Handbook", 
+                            "genres": ["Law", "Politics"], 
+                            "authors": ["Bruce Bueno de Mesquita", "Alastair Smith"], 
+                            "published": true
+                        }
+                        """),
+                Params.object(
+                        """
+                        {
+                            "title": "Deep Work", 
+                            "genres": ["Productivity", "Reference"], 
+                            "published": true
+                        }
+                        """),
+                Params.object("""
+                        {
+                            "title": "Siddhartha", 
+                            "genres": ["Fiction", "Spirituality"], 
+                            "published": true
+                        }
+                        """)
         );
 
     }
