@@ -53,8 +53,8 @@ class DateTimeTests {
 
     private void insertEvent(Event event) {
         rdbUtil.updateOrInsert("insert into event values(?,?)",
-                Params.string(event.description),
-                Params.timestamp(event.timestamp)
+                Params.string(event.description()),
+                Params.timestamp(event.timestamp())
         );
     }
 
