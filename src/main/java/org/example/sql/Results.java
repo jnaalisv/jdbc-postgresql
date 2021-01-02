@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public class Results {
 
-    private static ObjectMapper objectMapper = buildDefaultOM();
+    private static final ObjectMapper objectMapper = buildDefaultOM();
 
     private static ObjectMapper buildDefaultOM() {
         ObjectMapper om = new ObjectMapper();
