@@ -27,8 +27,8 @@ class JsonbTests {
         givenSomeTestData();
 
         var selectSQL = """
-                select data ->> 'title' as title 
-                from books 
+                select data ->> 'title' as title
+                from books
                 where ? = ?
                 """;
         var titles = sqlWizard
@@ -49,8 +49,8 @@ class JsonbTests {
         givenSomeTestData();
 
         var selectSQL = """
-                select data 
-                from books 
+                select data
+                from books
                 where (data ->> 'published')::boolean = ?
                 """;
 
@@ -67,8 +67,8 @@ class JsonbTests {
         var expectedTitle = "Siddhartha";
 
         var selectSQL = """
-                select data ->> 'title' as title 
-                from books 
+                select data ->> 'title' as title
+                from books
                 where data ->> 'title' = ?
                 """;
         var selectedTitles = sqlWizard
@@ -86,8 +86,8 @@ class JsonbTests {
         var expectedTitle = "Siddhartha";
 
         var selectSQL = """
-                select data 
-                from books 
+                select data
+                from books
                 where data ->> 'title' = ?
                 """;
         var maybeSiddhartha = sqlWizard
@@ -110,8 +110,8 @@ class JsonbTests {
         givenSomeTestData();
 
         var selectSQL = """
-                select id, data 
-                from books 
+                select id, data
+                from books
                 where data ->> 'title' = 'Siddhartha'
                 """;
         var maybeSiddhartha = sqlWizard
@@ -170,40 +170,40 @@ class JsonbTests {
                 Params.object(
                         """
                         {
-                            "title": "Sleeping Beauties", 
-                            "genres": ["Fiction", "Thriller", "Horror"], 
+                            "title": "Sleeping Beauties",
+                            "genres": ["Fiction", "Thriller", "Horror"],
                             "published": false
                         }
                         """),
                 Params.object(
                         """
                         {
-                            "title": "Influence", 
-                            "genres": ["Marketing & Sales", "Self-Help ", "Psychology"], 
+                            "title": "Influence",
+                            "genres": ["Marketing & Sales", "Self-Help ", "Psychology"],
                             "published": true
                         }
                         """),
                 Params.object(
                         """
                         {
-                            "title": "The Dictator's Handbook", 
-                            "genres": ["Law", "Politics"], 
-                            "authors": ["Bruce Bueno de Mesquita", "Alastair Smith"], 
+                            "title": "The Dictator's Handbook",
+                            "genres": ["Law", "Politics"],
+                            "authors": ["Bruce Bueno de Mesquita", "Alastair Smith"],
                             "published": true
                         }
                         """),
                 Params.object(
                         """
                         {
-                            "title": "Deep Work", 
-                            "genres": ["Productivity", "Reference"], 
+                            "title": "Deep Work",
+                            "genres": ["Productivity", "Reference"],
                             "published": true
                         }
                         """),
                 Params.object("""
                         {
-                            "title": "Siddhartha", 
-                            "genres": ["Fiction", "Spirituality"], 
+                            "title": "Siddhartha",
+                            "genres": ["Fiction", "Spirituality"],
                             "published": true
                         }
                         """)

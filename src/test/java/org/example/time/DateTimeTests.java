@@ -143,8 +143,8 @@ class DateTimeTests {
         assertEquals(1, count);
 
         var selectSQL = """
-                select timestamp 
-                from event 
+                select timestamp
+                from event
                 where description = 'Local Conference'
                 """;
         var timestamps = rdbUtil.selectList(
