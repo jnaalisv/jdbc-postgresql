@@ -10,11 +10,11 @@ repositories {
     jcenter()
 }
 
-ext["postgreSqlVersion"] = "42.2.19"
-ext["junitVersion"] = "5.7.1"
-ext["mockitoVersion"] = "3.6.0"
-ext["jacksonVersion"] = "2.12.2"
-ext["log4j2Version"] = "2.14.0"
+ext["postgreSqlVersion"] = "42.3.1"
+ext["junitVersion"] = "5.8.2"
+ext["mockitoVersion"] = "4.2.0"
+ext["jacksonVersion"] = "2.13.1"
+ext["log4j2Version"] = "2.17.0"
 
 dependencies {
     implementation ("org.apache.logging.log4j:log4j-api:$log4j2Version")
